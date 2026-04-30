@@ -1,6 +1,6 @@
 # Team Knowledge Hub
 
-Full-stack portfolio project scaffold for a document knowledge base with AI summary and Q&A.
+Full-stack portfolio project for a document knowledge base with Supabase auth, document CRUD, dashboard metrics, and Gemini-powered summary/Q&A.
 
 ## Stack
 
@@ -13,11 +13,12 @@ Full-stack portfolio project scaffold for a document knowledge base with AI summ
 
 ## What is included
 
-- Landing page tailored to the portfolio concept
 - App routes for `dashboard`, `documents`, `login`, `signup`, `admin`, and `settings`
-- Mock document data so the UI is useful before database wiring is complete
-- Supabase client utilities for browser, server, and middleware usage
-- Gemini route handlers for summary and document Q&A
+- Supabase SSR auth with protected app routes
+- Supabase-backed document CRUD with tags, slug URLs, search, filters, and activity logs
+- Dashboard metrics from live Supabase data
+- Gemini summary and Q&A actions that persist results to Supabase
+- Loading and error states for App Router pages
 - Validation schemas for documents and AI prompts
 - Project roadmap in [portfolio-fullstack-roadmap.md](./portfolio-fullstack-roadmap.md)
 
@@ -74,6 +75,7 @@ src/
     signup/
   components/
   features/
+    dashboard/
     documents/
   lib/
     ai/
@@ -87,32 +89,30 @@ src/
 
 Implemented now:
 
-- UI shell and route structure
-- Mock dashboard and document views
+- Production-oriented UI shell and route structure
+- Supabase-backed dashboard and document views
 - Supabase SSR helper setup and auth server actions
-- Gemini utility and route handlers
+- Gemini utility, retry/fallback handling, and persisted AI actions
 - Validation schemas
-- Initial SQL migration with RLS and role-aware policies
+- SQL migrations with RLS and role-aware policies
 
 Planned next:
 
-- Database schema and migrations
-- Document CRUD with persistence
-- Search and filters backed by Postgres
-- AI output persistence
-- Role-based access control
+- Add automated tests for auth and document actions
+- Add richer admin role management
+- Add semantic search with embeddings
 
 ## Main routes
 
 - `/` overview and setup state
-- `/dashboard` metrics and recent activity preview
-- `/documents` list page
-- `/documents/new` create form scaffold
-- `/documents/[id]` detail page
-- `/documents/[id]/edit` edit form scaffold
-- `/login` sign-in scaffold
-- `/signup` sign-up scaffold
-- `/admin` admin overview scaffold
+- `/dashboard` live metrics, quick actions, recent documents, and activity
+- `/documents` searchable document list
+- `/documents/new` create document form
+- `/documents/[id]` detail page with AI summary and Q&A
+- `/documents/[id]/edit` edit/delete document form
+- `/login` sign-in
+- `/signup` sign-up
+- `/admin` admin overview
 - `/settings` profile and API setup notes
 
 ## API routes
@@ -127,6 +127,7 @@ Both routes currently expect JSON payloads and require `GEMINI_API_KEY`.
 The initial schema is included in:
 
 - [supabase/migrations/202604300001_initial_schema.sql](./supabase/migrations/202604300001_initial_schema.sql)
+- [supabase/migrations/202604300002_fix_tag_rls.sql](./supabase/migrations/202604300002_fix_tag_rls.sql)
 
 It creates:
 
@@ -149,8 +150,9 @@ Recommended:
 Before deploying:
 
 - Add all environment variables in Vercel
-- Replace mock data with real database queries
-- Add auth protection and role checks
+- Apply Supabase migrations in order
+- Configure Supabase Auth redirect URLs
+- Confirm Gemini free-tier limits are acceptable for your demo traffic
 
 ## Useful commands
 
