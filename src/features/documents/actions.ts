@@ -78,12 +78,26 @@ async function syncDocumentTags(
     return;
   }
 
-  const { error: insertTagsError } = await supabase
+  const { data: existingTags, error: existingTagsError } = await supabase
     .from("tags")
-    .upsert(uniqueTags.map((name) => ({ name })), { onConflict: "name" });
+    .select("id, name")
+    .in("name", uniqueTags);
 
-  if (insertTagsError) {
-    throw new Error(insertTagsError.message);
+  if (existingTagsError) {
+    throw new Error(existingTagsError.message);
+  }
+
+  const existingTagNames = new Set((existingTags ?? []).map((tag) => tag.name));
+  const missingTags = uniqueTags.filter((name) => !existingTagNames.has(name));
+
+  if (missingTags.length > 0) {
+    const { error: insertTagsError } = await supabase
+      .from("tags")
+      .insert(missingTags.map((name) => ({ name })));
+
+    if (insertTagsError) {
+      throw new Error(insertTagsError.message);
+    }
   }
 
   const { data: tagRows, error: selectTagsError } = await supabase
