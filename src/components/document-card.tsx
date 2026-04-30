@@ -11,9 +11,9 @@ export function DocumentCard({ document }: DocumentCardProps) {
     <article className="rounded-[24px] border border-border bg-panel-strong p-5">
       <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
         <span>{document.category}</span>
-        <span>•</span>
+        <span>&bull;</span>
         <span>{document.updatedAt}</span>
-        <span>•</span>
+        <span>&bull;</span>
         <span className="capitalize">{document.status}</span>
       </div>
       <h2 className="mt-3 text-xl font-semibold tracking-tight">{document.title}</h2>

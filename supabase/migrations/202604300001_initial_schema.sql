@@ -178,12 +178,25 @@ for select
 to authenticated
 using (true);
 
-create policy "tags manage admin"
+create policy "tags insert authenticated"
 on public.tags
-for all
+for insert
+to authenticated
+with check (true);
+
+create policy "tags update admin"
+on public.tags
+for update
 to authenticated
 using (private.is_admin())
 with check (private.is_admin());
+
+create policy "tags delete admin"
+on public.tags
+for delete
+to authenticated
+using (private.is_admin())
+;
 
 create policy "document_tags select authenticated"
 on public.document_tags
