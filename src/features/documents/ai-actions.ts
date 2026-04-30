@@ -37,6 +37,7 @@ export async function generateSummaryAction(formData: FormData) {
   }
 
   const { supabase, user } = await requireAiUser();
+  let redirectPath = `/documents/${documentSlug}?success=${encodeURIComponent("AI summary generated.")}`;
 
   try {
     const summary = await summarizeDocument(parsed.data.content);
@@ -62,11 +63,12 @@ export async function generateSummaryAction(formData: FormData) {
     revalidatePath("/dashboard");
     revalidatePath("/documents");
     revalidatePath(`/documents/${documentSlug}`);
-    redirect(`/documents/${documentSlug}?success=${encodeURIComponent("AI summary generated.")}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to generate summary.";
-    redirect(getErrorPath(documentSlug, message));
+    redirectPath = getErrorPath(documentSlug, message);
   }
+
+  redirect(redirectPath);
 }
 
 export async function askDocumentQuestionAction(formData: FormData) {
@@ -82,6 +84,7 @@ export async function askDocumentQuestionAction(formData: FormData) {
   }
 
   const { supabase, user } = await requireAiUser();
+  let redirectPath = `/documents/${documentSlug}?success=${encodeURIComponent("AI answer saved.")}`;
 
   try {
     const answer = await askDocumentQuestion(parsed.data.content, parsed.data.question);
@@ -108,9 +111,10 @@ export async function askDocumentQuestionAction(formData: FormData) {
 
     revalidatePath("/dashboard");
     revalidatePath(`/documents/${documentSlug}`);
-    redirect(`/documents/${documentSlug}?success=${encodeURIComponent("AI answer saved.")}`);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to answer question.";
-    redirect(getErrorPath(documentSlug, message));
+    redirectPath = getErrorPath(documentSlug, message);
   }
+
+  redirect(redirectPath);
 }

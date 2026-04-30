@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AiSummary } from "@/components/ai-summary";
 import { AppShell } from "@/components/app-shell";
+import { SubmitButton } from "@/components/submit-button";
 import {
   askDocumentQuestionAction,
   generateSummaryAction,
@@ -80,15 +82,14 @@ export default async function DocumentDetailPage({
                 <input type="hidden" name="document_id" value={document.id} />
                 <input type="hidden" name="document_slug" value={document.slug} />
                 <input type="hidden" name="content" value={document.content} />
-                <button
-                  type="submit"
+                <SubmitButton
+                  idleLabel="Generate"
+                  pendingLabel="Summarizing"
                   className="rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-foreground transition hover:border-accent"
-                >
-                  Generate
-                </button>
+                />
               </form>
             </div>
-            <p className="mt-3 text-sm leading-7 text-muted">{document.summary}</p>
+            <AiSummary summary={document.summary} />
           </section>
           <section className="rounded-[24px] border border-border bg-panel-strong p-5">
             <h2 className="text-lg font-semibold tracking-tight">Ask AI about this document</h2>
@@ -101,12 +102,11 @@ export default async function DocumentDetailPage({
                 className="mt-4 min-h-28 w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm"
                 placeholder="What are the main action items in this document?"
               />
-              <button
-                type="submit"
+              <SubmitButton
+                idleLabel="Ask Gemini"
+                pendingLabel="Thinking"
                 className="mt-4 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white"
-              >
-                Ask Gemini
-              </button>
+              />
             </form>
             <div className="mt-5 space-y-3">
               {conversations.length > 0 ? (

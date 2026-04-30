@@ -62,7 +62,15 @@ async function generateWithFallback(contents: string) {
 
 export async function summarizeDocument(content: string) {
   return generateWithFallback(
-    `Summarize this internal knowledge-base document in 5 concise bullet points:\n\n${content}`,
+    [
+      "Summarize this internal knowledge-base document.",
+      "Return exactly 5 short bullet points.",
+      'Use this exact format for every line: "- concise point"',
+      "Do not use markdown bold, headings, numbering, or paragraphs.",
+      "Keep each bullet under 22 words.",
+      "",
+      content,
+    ].join("\n"),
   );
 }
 
