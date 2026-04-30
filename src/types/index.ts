@@ -24,3 +24,10 @@ export type ActivityRecord = {
   label: string;
   timestamp: string;
 };
+
+export type AiConversationRecord = {
+  id: string;
+  question: string;
+  answer: string;
+  createdAt: string;
+};

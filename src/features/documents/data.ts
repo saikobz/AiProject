@@ -1,7 +1,7 @@
 import { cache } from "react";
 
 import { createClient } from "@/lib/supabase/server";
-import type { DocumentRecord } from "@/types";
+import type { AiConversationRecord, DocumentRecord } from "@/types";
 
 type DocumentRow = {
   id: string;
@@ -26,6 +26,13 @@ type DocumentRow = {
         }>
       | null;
   }> | null;
+};
+
+type AiConversationRow = {
+  id: string;
+  question: string;
+  answer: string;
+  created_at: string;
 };
 
 export type DocumentFilters = {
@@ -143,4 +150,30 @@ export async function getDocumentById(id: string) {
   }
 
   return mapDocument(data as DocumentRow);
+}
+
+export async function listAiConversations(documentId: string, limit = 5) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("ai_conversations")
+    .select("id, question, answer, created_at")
+    .eq("document_id", documentId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return ((data ?? []) as AiConversationRow[]).map(
+    (conversation): AiConversationRecord => ({
+      id: conversation.id,
+      question: conversation.question,
+      answer: conversation.answer,
+      createdAt: new Date(conversation.created_at).toLocaleString("en-CA", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }),
+    }),
+  );
 }
