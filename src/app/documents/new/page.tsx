@@ -54,7 +54,7 @@ export default async function NewDocumentPage({ searchParams }: NewDocumentPageP
           placeholder="Paste document content here"
         />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
+          <button type="submit" className="cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
             Save document
           </button>
         </div>

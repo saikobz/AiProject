@@ -67,7 +67,7 @@ export default async function EditDocumentPage({
           className="min-h-64 rounded-2xl border border-border bg-panel-strong px-4 py-3"
         />
         <div className="flex flex-wrap gap-3">
-          <button type="submit" className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
+          <button type="submit" className="cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
             Save changes
           </button>
         </div>
@@ -75,7 +75,7 @@ export default async function EditDocumentPage({
       <form action={deleteDocumentAction} className="mt-4">
         <input type="hidden" name="document_id" value={document.id} />
         <input type="hidden" name="document_slug" value={document.slug} />
-        <button type="submit" className="rounded-full border border-border px-5 py-3 text-sm font-semibold">
+        <button type="submit" className="cursor-pointer rounded-full border border-border px-5 py-3 text-sm font-semibold">
           Delete document
         </button>
       </form>

@@ -58,7 +58,7 @@ export default async function DocumentsPage({ searchParams }: DocumentsPageProps
                 </option>
               ))}
             </select>
-            <button className="rounded-2xl border border-border bg-white px-4 py-3 text-sm font-medium text-foreground">
+            <button className="cursor-pointer rounded-2xl border border-border bg-white px-4 py-3 text-sm font-medium text-foreground">
               Apply filters
             </button>
           </form>

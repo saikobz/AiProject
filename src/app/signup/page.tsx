@@ -27,7 +27,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           <input name="full_name" placeholder="Full name" className="rounded-2xl border border-border bg-panel-strong px-4 py-3" />
           <input name="email" type="email" placeholder="Email address" className="rounded-2xl border border-border bg-panel-strong px-4 py-3" />
           <input name="password" type="password" placeholder="Password" className="rounded-2xl border border-border bg-panel-strong px-4 py-3" />
-          <button formAction={signup} className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
+          <button formAction={signup} className="cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
             Create account
           </button>
         </form>

@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <input type="hidden" name="next" value={params.next ?? "/dashboard"} />
           <input name="email" type="email" placeholder="Email address" className="rounded-2xl border border-border bg-panel-strong px-4 py-3" />
           <input name="password" type="password" placeholder="Password" className="rounded-2xl border border-border bg-panel-strong px-4 py-3" />
-          <button formAction={login} className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
+          <button formAction={login} className="cursor-pointer rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">
             Sign in
           </button>
         </form>

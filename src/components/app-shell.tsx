@@ -37,7 +37,7 @@ export async function AppShell({ title, description, children }: AppShellProps) 
               <form action="/auth/signout" method="post">
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-panel-strong px-3 py-2 text-sm font-medium transition hover:bg-white"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-panel-strong px-3 py-2 text-sm font-medium transition hover:bg-white"
                 >
                   <LogOut className="size-4" aria-hidden="true" />
                   Sign out

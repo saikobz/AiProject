@@ -18,7 +18,7 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="mt-6 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-strong"
+          className="mt-6 cursor-pointer rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-strong"
         >
           Try again
         </button>
