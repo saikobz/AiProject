@@ -1,6 +1,8 @@
 import { AppShell } from "@/components/app-shell";
+import { requireUser } from "@/lib/supabase/auth";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  await requireUser();
   return (
     <AppShell
       title="Settings"

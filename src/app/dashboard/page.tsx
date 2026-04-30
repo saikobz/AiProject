@@ -2,8 +2,10 @@ import { ActivityList } from "@/components/activity-list";
 import { AppShell } from "@/components/app-shell";
 import { StatGrid } from "@/components/stat-grid";
 import { getMockActivity, getMockDashboardStats, getMockDocuments } from "@/features/documents/mock-data";
+import { requireUser } from "@/lib/supabase/auth";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  await requireUser();
   const stats = getMockDashboardStats();
   const documents = getMockDocuments().slice(0, 2);
   const activity = getMockActivity();

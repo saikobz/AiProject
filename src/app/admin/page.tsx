@@ -1,6 +1,8 @@
 import { AppShell } from "@/components/app-shell";
+import { requireUser } from "@/lib/supabase/auth";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await requireUser();
   return (
     <AppShell
       title="Admin overview"

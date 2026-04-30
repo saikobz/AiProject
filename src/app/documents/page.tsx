@@ -3,8 +3,10 @@ import Link from "next/link";
 import { AppShell } from "@/components/app-shell";
 import { DocumentCard } from "@/components/document-card";
 import { getMockDocuments } from "@/features/documents/mock-data";
+import { requireUser } from "@/lib/supabase/auth";
 
-export default function DocumentsPage() {
+export default async function DocumentsPage() {
+  await requireUser();
   const documents = getMockDocuments();
 
   return (

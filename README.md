@@ -50,12 +50,14 @@ npm run dev
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 GEMINI_API_KEY=
 ```
 
 Notes:
 
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` follows the current Supabase docs for SSR setups.
+- `NEXT_PUBLIC_SITE_URL` is used for auth redirect URLs after email confirmation.
 - `GEMINI_API_KEY` is read server-side by the Gemini helper and API routes.
 
 ## Project structure
@@ -87,13 +89,13 @@ Implemented now:
 
 - UI shell and route structure
 - Mock dashboard and document views
-- Supabase helper setup
+- Supabase SSR helper setup and auth server actions
 - Gemini utility and route handlers
 - Validation schemas
+- Initial SQL migration with RLS and role-aware policies
 
 Planned next:
 
-- Real Supabase auth flow
 - Database schema and migrations
 - Document CRUD with persistence
 - Search and filters backed by Postgres
@@ -119,6 +121,23 @@ Planned next:
 - `POST /api/ai/ask`
 
 Both routes currently expect JSON payloads and require `GEMINI_API_KEY`.
+
+## Database schema
+
+The initial schema is included in:
+
+- [supabase/migrations/202604300001_initial_schema.sql](./supabase/migrations/202604300001_initial_schema.sql)
+
+It creates:
+
+- `profiles`
+- `documents`
+- `tags`
+- `document_tags`
+- `activity_logs`
+- `ai_conversations`
+
+with RLS policies and a trigger that creates `profiles` rows for new users.
 
 ## Deployment
 

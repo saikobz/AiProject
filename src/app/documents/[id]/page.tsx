@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { getMockDocumentById } from "@/features/documents/mock-data";
+import { requireUser } from "@/lib/supabase/auth";
 
 type DocumentDetailPageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function DocumentDetailPage({ params }: DocumentDetailPageProps) {
+  await requireUser();
   const { id } = await params;
   const document = getMockDocumentById(id);
 

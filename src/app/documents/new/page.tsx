@@ -1,6 +1,8 @@
 import { AppShell } from "@/components/app-shell";
+import { requireUser } from "@/lib/supabase/auth";
 
-export default function NewDocumentPage() {
+export default async function NewDocumentPage() {
+  await requireUser();
   return (
     <AppShell
       title="Create document"

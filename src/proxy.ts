@@ -10,6 +10,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  const pathname = request.nextUrl.pathname;
   const response = NextResponse.next({ request });
 
   const supabase = createServerClient(env.url, env.publishableKey, {
@@ -26,11 +27,34 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getClaims();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const protectedPaths = ["/dashboard", "/documents", "/admin", "/settings"];
+  const authPaths = ["/login", "/signup"];
+  const isProtected = protectedPaths.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+  const isAuthPage = authPaths.some((path) => pathname === path);
+
+  if (!user && isProtected) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (user && isAuthPage) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    dashboardUrl.search = "";
+    return NextResponse.redirect(dashboardUrl);
+  }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/documents/:path*", "/admin/:path*", "/settings/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
