@@ -158,7 +158,7 @@ export async function createDocumentAction(formData: FormData) {
       category: parsed.data.category,
       status: parsed.data.status,
     })
-    .select("id")
+    .select("id, slug")
     .single();
 
   if (error || !data) {
@@ -170,7 +170,7 @@ export async function createDocumentAction(formData: FormData) {
 
   revalidatePath("/documents");
   revalidatePath("/dashboard");
-  redirect(`/documents/${data.id}?success=${encodeURIComponent("Document created.")}`);
+  redirect(`/documents/${data.slug}?success=${encodeURIComponent("Document created.")}`);
 }
 
 export async function updateDocumentAction(formData: FormData) {
@@ -185,6 +185,7 @@ export async function updateDocumentAction(formData: FormData) {
   }
 
   const documentId = String(formData.get("document_id") ?? "");
+  const documentSlug = String(formData.get("document_slug") ?? "");
 
   const parsed = documentSchema.safeParse({
     title: String(formData.get("title") ?? ""),
@@ -213,20 +214,22 @@ export async function updateDocumentAction(formData: FormData) {
       category: parsed.data.category,
       status: parsed.data.status,
     })
-    .eq("id", documentId);
+    .eq("id", documentId)
+    .select("slug")
+    .single();
 
   if (error) {
-    redirect(getErrorPath(`/documents/${documentId}/edit`, error.message));
+    redirect(getErrorPath(`/documents/${documentSlug || documentId}/edit`, error.message));
   }
 
   await syncDocumentTags(supabase, documentId, parsed.data.tags);
   await insertActivityLog(supabase, user.id, "document.updated", documentId);
 
   revalidatePath("/documents");
-  revalidatePath(`/documents/${documentId}`);
-  revalidatePath(`/documents/${documentId}/edit`);
+  revalidatePath(`/documents/${documentSlug || documentId}`);
+  revalidatePath(`/documents/${documentSlug || documentId}/edit`);
   revalidatePath("/dashboard");
-  redirect(`/documents/${documentId}?success=${encodeURIComponent("Document updated.")}`);
+  redirect(`/documents/${slug}?success=${encodeURIComponent("Document updated.")}`);
 }
 
 export async function deleteDocumentAction(formData: FormData) {
@@ -241,6 +244,7 @@ export async function deleteDocumentAction(formData: FormData) {
   }
 
   const documentId = String(formData.get("document_id") ?? "");
+  const documentSlug = String(formData.get("document_slug") ?? "");
 
   if (!documentId) {
     redirect(getErrorPath("/documents", "Document ID is required."));
@@ -251,7 +255,7 @@ export async function deleteDocumentAction(formData: FormData) {
   const { error } = await supabase.from("documents").delete().eq("id", documentId);
 
   if (error) {
-    redirect(getErrorPath(`/documents/${documentId}/edit`, error.message));
+    redirect(getErrorPath(`/documents/${documentSlug || documentId}/edit`, error.message));
   }
 
   revalidatePath("/documents");

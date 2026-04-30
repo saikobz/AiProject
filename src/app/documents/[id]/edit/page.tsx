@@ -37,6 +37,7 @@ export default async function EditDocumentPage({
           </div>
         ) : null}
         <input type="hidden" name="document_id" value={document.id} />
+        <input type="hidden" name="document_slug" value={document.slug} />
         <input
           name="title"
           defaultValue={document.title}
@@ -73,6 +74,7 @@ export default async function EditDocumentPage({
       </form>
       <form action={deleteDocumentAction} className="mt-4">
         <input type="hidden" name="document_id" value={document.id} />
+        <input type="hidden" name="document_slug" value={document.slug} />
         <button type="submit" className="rounded-full border border-border px-5 py-3 text-sm font-semibold">
           Delete document
         </button>

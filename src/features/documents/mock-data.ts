@@ -3,6 +3,7 @@ import type { ActivityRecord, DashboardStat, DocumentRecord } from "@/types";
 const documents: DocumentRecord[] = [
   {
     id: "onboarding-playbook",
+    slug: "onboarding-playbook",
     title: "Onboarding Playbook",
     category: "People Ops",
     tags: ["onboarding", "people", "checklist"],
@@ -16,6 +17,7 @@ const documents: DocumentRecord[] = [
   },
   {
     id: "support-escalation-policy",
+    slug: "support-escalation-policy",
     title: "Support Escalation Policy",
     category: "Operations",
     tags: ["support", "sla", "incident"],
@@ -29,6 +31,7 @@ const documents: DocumentRecord[] = [
   },
   {
     id: "release-checklist",
+    slug: "release-checklist",
     title: "Release Checklist",
     category: "Engineering",
     tags: ["release", "qa", "deployment"],
@@ -42,6 +45,7 @@ const documents: DocumentRecord[] = [
   },
   {
     id: "sales-discovery-template",
+    slug: "sales-discovery-template",
     title: "Sales Discovery Template",
     category: "Sales",
     tags: ["sales", "discovery", "template"],

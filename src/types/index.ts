@@ -2,6 +2,7 @@ export type UserRole = "admin" | "member";
 
 export type DocumentRecord = {
   id: string;
+  slug: string;
   title: string;
   category: string;
   tags: string[];

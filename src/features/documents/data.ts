@@ -5,6 +5,7 @@ import type { DocumentRecord } from "@/types";
 
 type DocumentRow = {
   id: string;
+  slug: string;
   title: string;
   category: string;
   summary: string | null;
@@ -32,8 +33,15 @@ export type DocumentFilters = {
   category?: string;
 };
 
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
+}
+
 const documentSelect = `
   id,
+  slug,
   title,
   category,
   summary,
@@ -52,6 +60,7 @@ function mapDocument(row: DocumentRow): DocumentRecord {
 
   return {
     id: row.id,
+    slug: row.slug,
     title: row.title,
     category: row.category,
     summary: row.summary ?? "No summary yet. Run the AI summary action after saving the document.",
@@ -106,11 +115,9 @@ export async function listDocuments(filters: DocumentFilters = {}) {
 
 export async function getDocumentById(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("documents")
-    .select(documentSelect)
-    .eq("id", id)
-    .single();
+  const query = supabase.from("documents").select(documentSelect);
+  const lookup = isUuid(id) ? query.eq("id", id) : query.eq("slug", id);
+  const { data, error } = await lookup.single();
 
   if (error) {
     if (error.code === "PGRST116") {

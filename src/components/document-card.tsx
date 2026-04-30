@@ -30,7 +30,7 @@ export function DocumentCard({ document }: DocumentCardProps) {
       </div>
       <div className="mt-5">
         <Link
-          href={`/documents/${document.id}`}
+          href={`/documents/${document.slug}`}
           className="text-sm font-semibold text-accent transition hover:text-accent-strong"
         >
           Open document

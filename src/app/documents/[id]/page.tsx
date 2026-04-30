@@ -55,7 +55,7 @@ export default async function DocumentDetailPage({
             {document.content}
           </p>
           <div className="mt-6">
-            <Link href={`/documents/${document.id}/edit`} className="text-sm font-semibold text-accent">
+            <Link href={`/documents/${document.slug}/edit`} className="text-sm font-semibold text-accent">
               Edit document
             </Link>
           </div>
