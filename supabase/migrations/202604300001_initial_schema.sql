@@ -55,7 +55,7 @@ create table if not exists public.document_tags (
 create table if not exists public.activity_logs (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles (id) on delete cascade,
-  document_id uuid references public.documents (id) on delete cascade,
+  document_id uuid references public.documents (id) on delete set null,
   action text not null,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()

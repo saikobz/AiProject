@@ -113,6 +113,21 @@ export async function listDocuments(filters: DocumentFilters = {}) {
   return (data as DocumentRow[] | null | undefined)?.map(mapDocument) ?? [];
 }
 
+export async function listRecentDocuments(limit = 3) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("documents")
+    .select(documentSelect)
+    .order("updated_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data as DocumentRow[] | null | undefined)?.map(mapDocument) ?? [];
+}
+
 export async function getDocumentById(id: string) {
   const supabase = await createClient();
   const query = supabase.from("documents").select(documentSelect);
