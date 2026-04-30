@@ -18,12 +18,19 @@ type DocumentRow = {
         full_name: string | null;
         email: string;
       }>
+    | {
+        full_name: string | null;
+        email: string;
+      }
     | null;
   document_tags: Array<{
     tags:
       | Array<{
           name: string;
         }>
+      | {
+          name: string;
+        }
       | null;
   }> | null;
 };
@@ -63,7 +70,7 @@ const documentSelect = `
 `;
 
 function mapDocument(row: DocumentRow): DocumentRecord {
-  const profile = row.profiles?.[0];
+  const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
 
   return {
     id: row.id,
@@ -77,7 +84,13 @@ function mapDocument(row: DocumentRow): DocumentRecord {
     status: row.status,
     tags:
       row.document_tags
-        ?.flatMap((item) => item.tags?.map((tag) => tag.name) ?? [])
+        ?.flatMap((item) => {
+          if (!item.tags) {
+            return [];
+          }
+
+          return Array.isArray(item.tags) ? item.tags.map((tag) => tag.name) : [item.tags.name];
+        })
         .filter((value): value is string => Boolean(value)) ?? [],
   };
 }
