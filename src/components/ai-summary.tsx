@@ -33,13 +33,20 @@ export function AiSummary({ summary }: AiSummaryProps) {
   const points = getSummaryPoints(summary);
 
   if (points.length === 0) {
-    return <p className="mt-3 text-sm leading-7 text-muted">{summary.replace(/\*\*/g, "")}</p>;
+    return (
+      <p className="mt-4 rounded-2xl border border-border bg-background/30 px-4 py-3 text-sm leading-7 text-muted">
+        {summary.replace(/\*\*/g, "")}
+      </p>
+    );
   }
 
   return (
     <ul className="mt-4 space-y-3">
       {points.map((point) => (
-        <li key={point} className="flex gap-3 text-sm leading-7 text-muted">
+        <li
+          key={point}
+          className="flex gap-3 rounded-2xl border border-border bg-background/30 px-4 py-3 text-sm leading-7 text-muted"
+        >
           <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
           <span>{point}</span>
         </li>

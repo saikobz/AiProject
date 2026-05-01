@@ -56,18 +56,18 @@ async function generateWithFallback(contents: string) {
   }
 
   throw lastError instanceof Error
-    ? new Error("Gemini is temporarily unavailable. Please try again in a few minutes.")
-    : new Error("Gemini request failed.");
+    ? new Error("Gemini ยังไม่พร้อมใช้งานชั่วคราว กรุณาลองใหม่อีกครั้งในอีกไม่กี่นาที")
+    : new Error("เรียก Gemini ไม่สำเร็จ");
 }
 
 export async function summarizeDocument(content: string) {
   return generateWithFallback(
     [
-      "Summarize this internal knowledge-base document.",
-      "Return exactly 5 short bullet points.",
-      'Use this exact format for every line: "- concise point"',
-      "Do not use markdown bold, headings, numbering, or paragraphs.",
-      "Keep each bullet under 22 words.",
+      "สรุปเอกสารคลังความรู้นี้เป็นภาษาไทย",
+      "ตอบเป็น bullet สั้น ๆ จำนวน 5 ข้อเท่านั้น",
+      'ใช้รูปแบบนี้ทุกบรรทัด: "- ประเด็นสรุป"',
+      "ห้ามใช้ markdown bold, heading, numbering หรือ paragraph ยาว",
+      "แต่ละ bullet ไม่เกิน 22 คำ",
       "",
       content,
     ].join("\n"),
@@ -76,6 +76,6 @@ export async function summarizeDocument(content: string) {
 
 export async function askDocumentQuestion(content: string, question: string) {
   return generateWithFallback(
-    `Answer the question using only this document.\n\nDocument:\n${content}\n\nQuestion:\n${question}`,
+    `ตอบคำถามเป็นภาษาไทยโดยอ้างอิงจากเอกสารนี้เท่านั้น\n\nเอกสาร:\n${content}\n\nคำถาม:\n${question}`,
   );
 }

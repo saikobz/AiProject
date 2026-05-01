@@ -1,3 +1,5 @@
+import { type Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import type { ActivityRecord, DashboardStat } from "@/types";
 
@@ -12,43 +14,38 @@ type ActivityRow = {
     | null;
 };
 
-function formatRelativeTime(value: string) {
+function formatRelativeTime(value: string, locale: Locale) {
+  const t = getDictionary(locale).dashboard.activity;
   const timestamp = new Date(value).getTime();
   const diff = Date.now() - timestamp;
   const minutes = Math.max(0, Math.floor(diff / 60000));
 
   if (minutes < 1) {
-    return "Just now";
+    return t.justNow;
   }
 
   if (minutes < 60) {
-    return `${minutes} min ago`;
+    return t.minutesAgo(minutes);
   }
 
   const hours = Math.floor(minutes / 60);
 
   if (hours < 24) {
-    return `${hours} hr ago`;
+    return t.hoursAgo(hours);
   }
 
   const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  return t.daysAgo(days);
 }
 
-function actionLabel(action: string) {
-  const labels: Record<string, string> = {
-    "document.created": "Created",
-    "document.updated": "Updated",
-    "document.deleted": "Deleted",
-    "ai.summary.generated": "Generated summary for",
-    "ai.question.asked": "Asked AI about",
-  };
-
+function actionLabel(action: string, locale: Locale) {
+  const labels = getDictionary(locale).dashboard.activity.actions as Record<string, string>;
   return labels[action] ?? action.replaceAll(".", " ");
 }
 
-export async function getDashboardStats(): Promise<DashboardStat[]> {
+export async function getDashboardStats(locale: Locale): Promise<DashboardStat[]> {
   const supabase = await createClient();
+  const t = getDictionary(locale).dashboard.stats;
 
   const [documents, published, summaries] = await Promise.all([
     supabase.from("documents").select("id", { count: "exact", head: true }),
@@ -74,25 +71,26 @@ export async function getDashboardStats(): Promise<DashboardStat[]> {
 
   return [
     {
-      label: "Documents",
+      label: t.documents,
       value: String(totalCount),
-      detail: totalCount === 1 ? "1 document in Supabase" : `${totalCount} documents in Supabase`,
+      detail: t.documentsDetail(totalCount),
     },
     {
-      label: "Published",
+      label: t.published,
       value: String(publishedCount),
-      detail: `${Math.max(totalCount - publishedCount, 0)} drafts remaining`,
+      detail: t.draftsRemaining(Math.max(totalCount - publishedCount, 0)),
     },
     {
-      label: "AI summaries",
+      label: t.aiSummaries,
       value: String(summaryCount),
-      detail: `${Math.max(totalCount - summaryCount, 0)} documents need summaries`,
+      detail: t.needsSummary(Math.max(totalCount - summaryCount, 0)),
     },
   ];
 }
 
-export async function getRecentActivity(limit = 5): Promise<ActivityRecord[]> {
+export async function getRecentActivity(locale: Locale, limit = 5): Promise<ActivityRecord[]> {
   const supabase = await createClient();
+  const t = getDictionary(locale).dashboard.activity;
   const { data, error } = await supabase
     .from("activity_logs")
     .select(
@@ -111,12 +109,12 @@ export async function getRecentActivity(limit = 5): Promise<ActivityRecord[]> {
   }
 
   return ((data ?? []) as ActivityRow[]).map((item) => {
-    const documentTitle = item.documents?.[0]?.title ?? "a deleted document";
+    const documentTitle = item.documents?.[0]?.title ?? t.deletedDocument;
 
     return {
       id: item.id,
-      label: `${actionLabel(item.action)} ${documentTitle}`,
-      timestamp: formatRelativeTime(item.created_at),
+      label: `${actionLabel(item.action, locale)} ${documentTitle}`,
+      timestamp: formatRelativeTime(item.created_at, locale),
     };
   });
 }

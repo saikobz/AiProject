@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Team Knowledge Hub",
-  description: "Full-stack portfolio project scaffold with Next.js, Supabase, and Gemini.",
+  title: "Team Knowledge Hub | คลังความรู้ทีม",
+  description: "Full-stack document management and AI assistant app with Thai and English UI.",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="th"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

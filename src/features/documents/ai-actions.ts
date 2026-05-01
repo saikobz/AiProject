@@ -4,14 +4,16 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { askDocumentQuestion, summarizeDocument } from "@/lib/ai/gemini";
+import { normalizeLocale, withLocale, type Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { aiQuestionSchema, aiSummarySchema } from "@/lib/validations/document";
 
-function getErrorPath(slug: string, message: string) {
-  return `/documents/${slug}?error=${encodeURIComponent(message)}`;
+function getErrorPath(locale: Locale, slug: string, message: string) {
+  return `${withLocale(locale, `/documents/${slug}`)}?error=${encodeURIComponent(message)}`;
 }
 
-async function requireAiUser() {
+async function requireAiUser(locale: Locale) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -19,13 +21,15 @@ async function requireAiUser() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    redirect("/login");
+    redirect(withLocale(locale, "/login"));
   }
 
   return { supabase, user };
 }
 
 export async function generateSummaryAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const dict = getDictionary(locale);
   const documentId = String(formData.get("document_id") ?? "");
   const documentSlug = String(formData.get("document_slug") ?? "");
   const content = String(formData.get("content") ?? "");
@@ -33,11 +37,11 @@ export async function generateSummaryAction(formData: FormData) {
   const parsed = aiSummarySchema.safeParse({ content });
 
   if (!documentId || !documentSlug || !parsed.success) {
-    redirect(getErrorPath(documentSlug || documentId, "Document content is required for summary."));
+    redirect(getErrorPath(locale, documentSlug || documentId, dict.system.summaryNeedsContent));
   }
 
-  const { supabase, user } = await requireAiUser();
-  let redirectPath = `/documents/${documentSlug}?success=${encodeURIComponent("AI summary generated.")}`;
+  const { supabase, user } = await requireAiUser(locale);
+  let redirectPath = `${withLocale(locale, `/documents/${documentSlug}`)}?success=${encodeURIComponent(dict.system.summaryGenerated)}`;
 
   try {
     const summary = await summarizeDocument(parsed.data.content);
@@ -60,18 +64,20 @@ export async function generateSummaryAction(formData: FormData) {
       throw activityError;
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/documents");
-    revalidatePath(`/documents/${documentSlug}`);
+    revalidatePath(withLocale(locale, "/dashboard"));
+    revalidatePath(withLocale(locale, "/documents"));
+    revalidatePath(withLocale(locale, `/documents/${documentSlug}`));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to generate summary.";
-    redirectPath = getErrorPath(documentSlug, message);
+    const message = error instanceof Error ? error.message : dict.system.summaryFailed;
+    redirectPath = getErrorPath(locale, documentSlug, message);
   }
 
   redirect(redirectPath);
 }
 
 export async function askDocumentQuestionAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const dict = getDictionary(locale);
   const documentId = String(formData.get("document_id") ?? "");
   const documentSlug = String(formData.get("document_slug") ?? "");
   const content = String(formData.get("content") ?? "");
@@ -80,11 +86,11 @@ export async function askDocumentQuestionAction(formData: FormData) {
   const parsed = aiQuestionSchema.safeParse({ content, question });
 
   if (!documentId || !documentSlug || !parsed.success) {
-    redirect(getErrorPath(documentSlug || documentId, "A valid question and document content are required."));
+    redirect(getErrorPath(locale, documentSlug || documentId, dict.system.questionNeedsContent));
   }
 
-  const { supabase, user } = await requireAiUser();
-  let redirectPath = `/documents/${documentSlug}?success=${encodeURIComponent("AI answer saved.")}`;
+  const { supabase, user } = await requireAiUser(locale);
+  let redirectPath = `${withLocale(locale, `/documents/${documentSlug}`)}?success=${encodeURIComponent(dict.system.answerSaved)}`;
 
   try {
     const answer = await askDocumentQuestion(parsed.data.content, parsed.data.question);
@@ -109,11 +115,11 @@ export async function askDocumentQuestionAction(formData: FormData) {
       throw activityError;
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath(`/documents/${documentSlug}`);
+    revalidatePath(withLocale(locale, "/dashboard"));
+    revalidatePath(withLocale(locale, `/documents/${documentSlug}`));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to answer question.";
-    redirectPath = getErrorPath(documentSlug, message);
+    const message = error instanceof Error ? error.message : dict.system.answerFailed;
+    redirectPath = getErrorPath(locale, documentSlug, message);
   }
 
   redirect(redirectPath);

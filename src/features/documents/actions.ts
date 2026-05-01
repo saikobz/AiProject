@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { normalizeLocale, withLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import { documentSchema } from "@/lib/validations/document";
 
@@ -139,6 +141,8 @@ async function insertActivityLog(
 }
 
 export async function createDocumentAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const dict = getDictionary(locale);
   const supabase = await createClient();
   const {
     data: { user },
@@ -146,7 +150,7 @@ export async function createDocumentAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect("/login");
+    redirect(withLocale(locale, "/login"));
   }
 
   const parsed = documentSchema.safeParse({
@@ -158,7 +162,7 @@ export async function createDocumentAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect(getErrorPath("/documents/new", parsed.error.issues[0]?.message ?? "Invalid document input."));
+    redirect(getErrorPath(withLocale(locale, "/documents/new"), parsed.error.issues[0]?.message ?? dict.system.invalidDocument));
   }
 
   const slug = await ensureUniqueSlug(parsed.data.title, supabase);
@@ -176,18 +180,20 @@ export async function createDocumentAction(formData: FormData) {
     .single();
 
   if (error || !data) {
-    redirect(getErrorPath("/documents/new", error?.message ?? "Failed to create document."));
+    redirect(getErrorPath(withLocale(locale, "/documents/new"), error?.message ?? dict.system.createDocumentFailed));
   }
 
   await syncDocumentTags(supabase, data.id, parsed.data.tags);
   await insertActivityLog(supabase, user.id, "document.created", data.id);
 
-  revalidatePath("/documents");
-  revalidatePath("/dashboard");
-  redirect(`/documents/${data.slug}?success=${encodeURIComponent("Document created.")}`);
+  revalidatePath(withLocale(locale, "/documents"));
+  revalidatePath(withLocale(locale, "/dashboard"));
+  redirect(`${withLocale(locale, `/documents/${data.slug}`)}?success=${encodeURIComponent(dict.system.documentCreated)}`);
 }
 
 export async function updateDocumentAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const dict = getDictionary(locale);
   const supabase = await createClient();
   const {
     data: { user },
@@ -195,7 +201,7 @@ export async function updateDocumentAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect("/login");
+    redirect(withLocale(locale, "/login"));
   }
 
   const documentId = String(formData.get("document_id") ?? "");
@@ -212,8 +218,8 @@ export async function updateDocumentAction(formData: FormData) {
   if (!documentId || !parsed.success) {
     redirect(
       getErrorPath(
-        `/documents/${documentId}/edit`,
-        parsed.success ? "Document ID is required." : parsed.error.issues[0]?.message ?? "Invalid input.",
+        withLocale(locale, `/documents/${documentSlug || documentId}/edit`),
+        parsed.success ? dict.system.documentIdRequired : parsed.error.issues[0]?.message ?? dict.system.invalidInput,
       ),
     );
   }
@@ -233,20 +239,22 @@ export async function updateDocumentAction(formData: FormData) {
     .single();
 
   if (error) {
-    redirect(getErrorPath(`/documents/${documentSlug || documentId}/edit`, error.message));
+    redirect(getErrorPath(withLocale(locale, `/documents/${documentSlug || documentId}/edit`), error.message));
   }
 
   await syncDocumentTags(supabase, documentId, parsed.data.tags);
   await insertActivityLog(supabase, user.id, "document.updated", documentId);
 
-  revalidatePath("/documents");
-  revalidatePath(`/documents/${documentSlug || documentId}`);
-  revalidatePath(`/documents/${documentSlug || documentId}/edit`);
-  revalidatePath("/dashboard");
-  redirect(`/documents/${slug}?success=${encodeURIComponent("Document updated.")}`);
+  revalidatePath(withLocale(locale, "/documents"));
+  revalidatePath(withLocale(locale, `/documents/${documentSlug || documentId}`));
+  revalidatePath(withLocale(locale, `/documents/${documentSlug || documentId}/edit`));
+  revalidatePath(withLocale(locale, "/dashboard"));
+  redirect(`${withLocale(locale, `/documents/${slug}`)}?success=${encodeURIComponent(dict.system.documentUpdated)}`);
 }
 
 export async function deleteDocumentAction(formData: FormData) {
+  const locale = normalizeLocale(formData.get("locale"));
+  const dict = getDictionary(locale);
   const supabase = await createClient();
   const {
     data: { user },
@@ -254,14 +262,14 @@ export async function deleteDocumentAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
-    redirect("/login");
+    redirect(withLocale(locale, "/login"));
   }
 
   const documentId = String(formData.get("document_id") ?? "");
   const documentSlug = String(formData.get("document_slug") ?? "");
 
   if (!documentId) {
-    redirect(getErrorPath("/documents", "Document ID is required."));
+    redirect(getErrorPath(withLocale(locale, "/documents"), dict.system.documentIdRequired));
   }
 
   await insertActivityLog(supabase, user.id, "document.deleted", documentId);
@@ -269,10 +277,10 @@ export async function deleteDocumentAction(formData: FormData) {
   const { error } = await supabase.from("documents").delete().eq("id", documentId);
 
   if (error) {
-    redirect(getErrorPath(`/documents/${documentSlug || documentId}/edit`, error.message));
+    redirect(getErrorPath(withLocale(locale, `/documents/${documentSlug || documentId}/edit`), error.message));
   }
 
-  revalidatePath("/documents");
-  revalidatePath("/dashboard");
-  redirect("/documents?success=Document%20deleted.");
+  revalidatePath(withLocale(locale, "/documents"));
+  revalidatePath(withLocale(locale, "/dashboard"));
+  redirect(`${withLocale(locale, "/documents")}?success=${encodeURIComponent(dict.system.documentDeleted)}`);
 }

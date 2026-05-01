@@ -2,70 +2,87 @@ import Link from "next/link";
 import { BarChart3, FileText, LogIn, LogOut, Settings, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { withLocale, type Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getCurrentUser } from "@/lib/supabase/auth";
-import { cn } from "@/lib/utils/cn";
-
-const navigation = [
-  { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
-  { href: "/documents", label: "Documents", icon: FileText },
-  { href: "/admin", label: "Admin", icon: ShieldCheck },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
 
 type AppShellProps = {
+  locale: Locale;
   title: string;
   description: string;
   children: ReactNode;
 };
 
-export async function AppShell({ title, description, children }: AppShellProps) {
+export async function AppShell({ locale, title, description, children }: AppShellProps) {
   const user = await getCurrentUser();
+  const dict = getDictionary(locale);
+  const navigation = [
+    { href: withLocale(locale, "/dashboard"), label: dict.nav.dashboard, icon: BarChart3 },
+    { href: withLocale(locale, "/documents"), label: dict.nav.documents, icon: FileText },
+    { href: withLocale(locale, "/admin"), label: dict.nav.admin, icon: ShieldCheck },
+    { href: withLocale(locale, "/settings"), label: dict.nav.settings, icon: Settings },
+  ];
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 px-4 py-4 md:px-8 lg:px-10">
-      <header className="rounded-2xl border border-border bg-panel px-5 py-4 shadow-[var(--shadow)]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <Link href="/" className="text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-              Team Knowledge Hub
+    <div className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-3 py-3 sm:px-5 sm:py-5 lg:px-8">
+      <header className="overflow-hidden rounded-[28px] border border-border bg-panel px-4 py-4 shadow-[var(--shadow)] backdrop-blur-xl sm:px-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <Link
+              href={withLocale(locale, "/")}
+              className="inline-flex cursor-pointer items-center rounded-full border border-border bg-accent-soft px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent"
+            >
+              {dict.common.appName}
             </Link>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">{description}</p>
+            <h1 className="mt-4 max-w-4xl text-2xl font-semibold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+              {title}
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-muted sm:text-base">{description}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            <LanguageSwitcher locale={locale} />
             {user ? (
-              <form action="/auth/signout" method="post">
+              <form action={`/auth/signout?locale=${locale}`} method="post">
                 <button
                   type="submit"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-panel-strong px-3 py-2 text-sm font-medium transition hover:bg-white"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-panel-strong px-3.5 py-2 text-sm font-medium text-foreground transition hover:border-accent hover:bg-accent-soft"
                 >
                   <LogOut className="size-4" aria-hidden="true" />
-                  Sign out
+                  {dict.common.signOut}
                 </button>
               </form>
             ) : null}
-            {navigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium transition",
-                  "hover:bg-accent-soft",
-                )}
-              >
-                <item.icon className="size-4" aria-hidden="true" />
-                {item.label}
-              </Link>
-            ))}
           </div>
         </div>
+        <nav className="-mx-1 mt-5 flex gap-2 overflow-x-auto px-1 pb-1 lg:hidden">
+          {navigation.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full border border-border bg-panel-strong px-3.5 py-2 text-sm font-medium text-muted transition hover:border-accent hover:bg-accent-soft hover:text-foreground"
+            >
+              <item.icon className="size-4" aria-hidden="true" />
+              {item.label}
+            </Link>
+          ))}
+          {!user ? (
+            <Link
+              href={withLocale(locale, "/login")}
+              className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-accent px-3.5 py-2 text-sm font-semibold text-background transition hover:bg-accent-strong"
+            >
+              <LogIn className="size-4" aria-hidden="true" />
+              {dict.common.signIn}
+            </Link>
+          ) : null}
+        </nav>
       </header>
-      <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
-        <aside className="rounded-2xl border border-border bg-panel p-4">
-          <div className="mb-4 rounded-xl border border-border bg-panel-strong px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-muted">Session</p>
-            <p className="mt-2 text-sm font-medium text-foreground">
-              {user?.email ?? "No active session"}
+      <div className="grid min-w-0 gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="hidden rounded-[28px] border border-border bg-panel p-4 shadow-[var(--shadow)] backdrop-blur-xl lg:block">
+          <div className="mb-4 rounded-2xl border border-border bg-panel-strong px-4 py-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{dict.common.session}</p>
+            <p className="mt-2 truncate text-sm font-medium text-foreground">
+              {user?.email ?? dict.common.noSession}
             </p>
           </div>
           <nav className="space-y-2">
@@ -73,22 +90,26 @@ export async function AppShell({ title, description, children }: AppShellProps) 
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-muted transition hover:bg-panel-strong hover:text-foreground"
+                className="flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-muted transition hover:bg-accent-soft hover:text-foreground"
               >
                 <item.icon className="size-4" aria-hidden="true" />
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              className="flex items-center gap-3 rounded-xl bg-accent px-4 py-3 text-sm font-semibold text-white transition hover:bg-accent-strong"
-            >
-              <LogIn className="size-4" aria-hidden="true" />
-              Login scaffold
-            </Link>
+            {!user ? (
+              <Link
+                href={withLocale(locale, "/login")}
+                className="flex cursor-pointer items-center gap-3 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-background transition hover:bg-accent-strong"
+              >
+                <LogIn className="size-4" aria-hidden="true" />
+                {dict.common.signIn}
+              </Link>
+            ) : null}
           </nav>
         </aside>
-        <section className="rounded-2xl border border-border bg-panel p-5 shadow-[var(--shadow)] md:p-6">{children}</section>
+        <section className="min-w-0 rounded-[28px] border border-border bg-panel p-4 shadow-[var(--shadow)] backdrop-blur-xl sm:p-5 lg:p-6">
+          {children}
+        </section>
       </div>
     </div>
   );

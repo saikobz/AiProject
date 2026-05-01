@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f8f5;
-  --foreground: #171b18;
-  --panel: #ffffff;
-  --panel-strong: #f1f5ef;
-  --muted: #627066;
-  --border: rgba(23, 27, 24, 0.12);
-  --accent: #276749;
-  --accent-strong: #184934;
-  --accent-soft: #dcece1;
-  --success: #1f7a4d;
-  --shadow: 0 14px 32px rgba(22, 36, 26, 0.08);
+  --background: #07110f;
+  --foreground: #edf8f2;
+  --panel: rgba(13, 25, 22, 0.86);
+  --panel-strong: rgba(20, 35, 31, 0.92);
+  --muted: #90a89f;
+  --border: rgba(237, 248, 242, 0.14);
+  --accent: #61e4b6;
+  --accent-strong: #23b88e;
+  --accent-soft: rgba(97, 228, 182, 0.13);
+  --success: #65dfa6;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
 }
 
 @theme inline {
@@ -39,9 +39,25 @@ html {
 
 body {
   min-height: 100vh;
-  background: transparent;
+  background:
+    radial-gradient(circle at 10% -10%, rgba(97, 228, 182, 0.18), transparent 34rem),
+    radial-gradient(circle at 92% 4%, rgba(245, 158, 11, 0.13), transparent 28rem),
+    linear-gradient(135deg, #07110f 0%, #0b151d 48%, #11140f 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+body::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(237, 248, 242, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(237, 248, 242, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, black, transparent 82%);
 }
 
 a {
@@ -49,6 +65,24 @@ a {
   text-decoration: none;
 }
 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input,
+select,
+textarea {
+  color: var(--foreground);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: color-mix(in oklab, var(--muted) 78%, transparent);
+}
+
 ::selection {
-  background: rgba(184, 92, 56, 0.18);
+  background: rgba(97, 228, 182, 0.24);
 }

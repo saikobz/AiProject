@@ -1,5 +1,7 @@
 import { cache } from "react";
 
+import type { Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import { createClient } from "@/lib/supabase/server";
 import type { AiConversationRecord, DocumentRecord } from "@/types";
 
@@ -69,15 +71,16 @@ const documentSelect = `
   )
 `;
 
-function mapDocument(row: DocumentRow): DocumentRecord {
+function mapDocument(row: DocumentRow, locale: Locale = "th"): DocumentRecord {
   const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
+  const dict = getDictionary(locale);
 
   return {
     id: row.id,
     slug: row.slug,
     title: row.title,
     category: row.category,
-    summary: row.summary ?? "No summary yet. Run the AI summary action after saving the document.",
+    summary: row.summary ?? dict.documents.noSummary,
     content: row.content,
     updatedAt: new Date(row.updated_at).toLocaleDateString("en-CA"),
     author: profile?.full_name || profile?.email || "Unknown author",
@@ -109,7 +112,7 @@ export const getDocumentCategories = cache(async () => {
   return [...new Set((data ?? []).map((item) => item.category))];
 });
 
-export async function listDocuments(filters: DocumentFilters = {}) {
+export async function listDocuments(filters: DocumentFilters = {}, locale: Locale = "th") {
   const supabase = await createClient();
   let query = supabase
     .from("documents")
@@ -130,10 +133,10 @@ export async function listDocuments(filters: DocumentFilters = {}) {
     throw new Error(error.message);
   }
 
-  return (data as DocumentRow[] | null | undefined)?.map(mapDocument) ?? [];
+  return (data as DocumentRow[] | null | undefined)?.map((row) => mapDocument(row, locale)) ?? [];
 }
 
-export async function listRecentDocuments(limit = 3) {
+export async function listRecentDocuments(limit = 3, locale: Locale = "th") {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("documents")
@@ -145,10 +148,10 @@ export async function listRecentDocuments(limit = 3) {
     throw new Error(error.message);
   }
 
-  return (data as DocumentRow[] | null | undefined)?.map(mapDocument) ?? [];
+  return (data as DocumentRow[] | null | undefined)?.map((row) => mapDocument(row, locale)) ?? [];
 }
 
-export async function getDocumentById(id: string) {
+export async function getDocumentById(id: string, locale: Locale = "th") {
   const supabase = await createClient();
   const query = supabase.from("documents").select(documentSelect);
   const lookup = isUuid(id) ? query.eq("id", id) : query.eq("slug", id);
@@ -162,7 +165,7 @@ export async function getDocumentById(id: string) {
     throw new Error(error.message);
   }
 
-  return mapDocument(data as DocumentRow);
+  return mapDocument(data as DocumentRow, locale);
 }
 
 export async function listAiConversations(documentId: string, limit = 5) {

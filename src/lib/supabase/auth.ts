@@ -18,11 +18,11 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function requireUser() {
+export async function requireUser(loginPath = "/th/login") {
   const user = await getCurrentUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginPath);
   }
 
   return user;

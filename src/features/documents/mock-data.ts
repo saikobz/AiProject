@@ -1,16 +1,18 @@
+import type { Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { ActivityRecord, DashboardStat, DocumentRecord } from "@/types";
 
 const documents: DocumentRecord[] = [
   {
     id: "onboarding-playbook",
     slug: "onboarding-playbook",
-    title: "Onboarding Playbook",
+    title: "คู่มือเริ่มงาน",
     category: "People Ops",
     tags: ["onboarding", "people", "checklist"],
     summary:
-      "A structured onboarding guide covering the first week, key tools, owners, and expectations for new team members.",
+      "คู่มือเริ่มงานที่ครอบคลุมสัปดาห์แรก เครื่องมือสำคัญ ผู้รับผิดชอบ และความคาดหวังของทีม",
     content:
-      "This playbook outlines account setup, team introductions, access requests, communication norms, and success checkpoints for the first week.",
+      "เอกสารนี้สรุปการตั้งค่าบัญชี การแนะนำทีม การขอสิทธิ์ใช้งาน แนวทางการสื่อสาร และจุดตรวจสอบในสัปดาห์แรก",
     updatedAt: "2026-04-28",
     author: "Padon",
     status: "published",
@@ -18,13 +20,13 @@ const documents: DocumentRecord[] = [
   {
     id: "support-escalation-policy",
     slug: "support-escalation-policy",
-    title: "Support Escalation Policy",
+    title: "นโยบายการส่งต่อเคส Support",
     category: "Operations",
     tags: ["support", "sla", "incident"],
     summary:
-      "Defines severity levels, expected response times, escalation paths, and ownership across support and engineering.",
+      "กำหนดระดับความรุนแรง เวลาในการตอบกลับ เส้นทาง escalation และเจ้าของงานระหว่างทีม support กับ engineering",
     content:
-      "Incidents are classified into four severity levels. Each level defines paging behavior, update cadence, and owner responsibilities.",
+      "Incident ถูกแบ่งเป็นหลายระดับ แต่ละระดับกำหนดวิธีแจ้งเตือน ความถี่ในการอัปเดต และความรับผิดชอบของเจ้าของงาน",
     updatedAt: "2026-04-27",
     author: "Support Lead",
     status: "published",
@@ -32,13 +34,13 @@ const documents: DocumentRecord[] = [
   {
     id: "release-checklist",
     slug: "release-checklist",
-    title: "Release Checklist",
+    title: "เช็กลิสต์ก่อน Release",
     category: "Engineering",
     tags: ["release", "qa", "deployment"],
     summary:
-      "A pre-release checklist for testing, migrations, observability, rollback plans, and stakeholder communication.",
+      "เช็กลิสต์ก่อน release สำหรับการทดสอบ migration observability แผน rollback และการสื่อสารกับผู้เกี่ยวข้อง",
     content:
-      "Before each release, verify test coverage, review migration safety, confirm dashboard alerts, and assign a rollback owner.",
+      "ก่อน release ให้ตรวจ test coverage, migration safety, alert dashboard และกำหนดผู้รับผิดชอบ rollback",
     updatedAt: "2026-04-25",
     author: "Platform Team",
     status: "draft",
@@ -46,13 +48,13 @@ const documents: DocumentRecord[] = [
   {
     id: "sales-discovery-template",
     slug: "sales-discovery-template",
-    title: "Sales Discovery Template",
+    title: "เทมเพลต Discovery Call",
     category: "Sales",
     tags: ["sales", "discovery", "template"],
     summary:
-      "Question prompts and note structure for discovery calls, including pain points, budget, stakeholders, and next steps.",
+      "โครงคำถามและรูปแบบการจดโน้ตสำหรับ discovery call ครอบคลุม pain point, budget, stakeholder และ next step",
     content:
-      "Use this template to run discovery consistently and capture information that helps qualify the opportunity.",
+      "ใช้เทมเพลตนี้เพื่อให้ discovery call มีมาตรฐานและเก็บข้อมูลสำหรับประเมินโอกาสทางการขาย",
     updatedAt: "2026-04-22",
     author: "Revenue Ops",
     status: "published",
@@ -60,15 +62,15 @@ const documents: DocumentRecord[] = [
 ];
 
 const dashboardStats: DashboardStat[] = [
-  { label: "Documents", value: "48", detail: "+6 this month" },
-  { label: "AI summaries", value: "123", detail: "Cached to reduce API calls" },
-  { label: "Search success", value: "89%", detail: "Based on recent queries" },
+  { label: "เอกสาร", value: "48", detail: "+6 ในเดือนนี้" },
+  { label: "สรุปด้วย AI", value: "123", detail: "บันทึกผลไว้เพื่อลดการเรียก API" },
+  { label: "ค้นหาสำเร็จ", value: "89%", detail: "อ้างอิงจากคำค้นล่าสุด" },
 ];
 
 const activity: ActivityRecord[] = [
-  { id: "a1", label: "Updated Release Checklist", timestamp: "2 hours ago" },
-  { id: "a2", label: "Generated AI summary for Support Escalation Policy", timestamp: "5 hours ago" },
-  { id: "a3", label: "Created Sales Discovery Template", timestamp: "Yesterday" },
+  { id: "a1", label: "แก้ไขเช็กลิสต์ก่อน Release", timestamp: "2 ชั่วโมงที่แล้ว" },
+  { id: "a2", label: "สร้างสรุปด้วย AI สำหรับนโยบาย Support", timestamp: "5 ชั่วโมงที่แล้ว" },
+  { id: "a3", label: "สร้างเทมเพลต Discovery Call", timestamp: "เมื่อวาน" },
 ];
 
 export function getMockDocuments() {
@@ -79,8 +81,17 @@ export function getMockDocumentById(id: string) {
   return documents.find((document) => document.id === id) ?? null;
 }
 
-export function getMockDashboardStats() {
-  return dashboardStats;
+export function getMockDashboardStats(locale: Locale = "th") {
+  if (locale === "th") {
+    return dashboardStats;
+  }
+
+  const t = getDictionary(locale).dashboard.stats;
+  return [
+    { label: t.documents, value: "48", detail: "+6 this month" },
+    { label: t.aiSummaries, value: "123", detail: "Saved results reduce repeat API calls" },
+    { label: "Search success", value: "89%", detail: "Based on recent queries" },
+  ];
 }
 
 export function getMockActivity() {

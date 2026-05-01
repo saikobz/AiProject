@@ -1,4 +1,4 @@
-export default function Loading() {
+export default function LocaleLoading() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-3 py-3 sm:px-5 sm:py-5 lg:px-8">
       <div className="h-40 animate-pulse rounded-[28px] border border-border bg-panel" />
