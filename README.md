@@ -1,28 +1,136 @@
 # Team Knowledge Hub
 
-Full-stack portfolio project for a document knowledge base with Supabase auth, document CRUD, dashboard metrics, and Gemini-powered summary/Q&A.
+Full-stack portfolio project for a bilingual team knowledge base with Supabase auth, document CRUD, dashboard metrics, and Gemini-powered document summary/Q&A.
 
-## Stack
+The app is designed to look and behave like an internal SaaS tool: protected workspace routes, live database-backed data, persistent AI results, responsive command-center UI, and Thai/English route-based localization.
+
+## Why This Project Matters
+
+This project demonstrates practical full-stack engineering, not only UI scaffolding. It combines authentication, database design, row-level security, server actions, API routes, validation, AI integration, responsive product UI, and deployment-ready configuration in one coherent business use case.
+
+It is suitable for a portfolio because it shows how a real team might manage internal documentation, search knowledge, summarize long content, and ask AI questions from trusted document context.
+
+## Tech Stack
 
 - Next.js 16 App Router
+- React 19
 - TypeScript
 - Tailwind CSS 4
-- Supabase SSR helpers
+- Supabase Auth, Postgres, RLS, and SSR helpers
 - Gemini API via `@google/genai`
-- Zod for validation
+- Zod validation
+- Vercel-ready deployment model
 
-## What is included
+## Implemented Features
 
-- App routes for `dashboard`, `documents`, `login`, `signup`, `admin`, and `settings`
-- Supabase SSR auth with protected app routes
-- Supabase-backed document CRUD with tags, slug URLs, search, filters, and activity logs
+- Route-based i18n with `/th` and `/en`
+- Default `/` redirect to `/th`
+- Thai and English UI for navigation, pages, forms, messages, empty states, loading states, and errors
+- Supabase SSR authentication with protected workspace routes
+- Document CRUD backed by Supabase
+- Slug-based document URLs
+- Tags, categories, search, and filters
+- Activity logs for document and AI actions
 - Dashboard metrics from live Supabase data
-- Gemini summary and Q&A actions that persist results to Supabase
-- Loading and error states for App Router pages
-- Validation schemas for documents and AI prompts
-- Project roadmap in [portfolio-fullstack-roadmap.md](./portfolio-fullstack-roadmap.md)
+- Gemini AI summary persisted to `documents.summary`
+- Gemini document Q&A persisted to `ai_conversations`
+- Command-center responsive UI with mobile top-chip navigation and desktop sidebar
+- Server-side validation for documents and AI prompts
+- Loading/error pages for App Router routes
 
-## Quick start
+## Screenshots
+
+Screenshots are not committed yet.
+
+Suggested portfolio screenshots:
+
+- Landing page in Thai and English
+- Dashboard desktop view
+- Documents list with search/filter
+- Document detail with AI summary and Q&A
+- Mobile login or mobile landing view
+
+## Architecture Overview
+
+```txt
+src/
+  app/
+    [locale]/
+      admin/
+      dashboard/
+      documents/
+      login/
+      settings/
+      signup/
+    api/ai/
+    auth/
+  components/
+  features/
+    dashboard/
+    documents/
+  lib/
+    ai/
+    i18n/
+    supabase/
+    utils/
+    validations/
+  types/
+supabase/
+  migrations/
+```
+
+Key architecture decisions:
+
+- UI pages live under `src/app/[locale]` so `/th/...` and `/en/...` share the same implementation.
+- API routes and auth callbacks stay outside `[locale]` because they do not render localized UI.
+- Server Components read `params.locale` and load dictionary text from `src/lib/i18n`.
+- Server Actions receive a hidden `locale` field so redirects return to the same language.
+- User-generated document data is shown as stored and is not automatically translated.
+
+## Main Routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Redirects to `/th` |
+| `/th` / `/en` | Public landing page |
+| `/th/login` / `/en/login` | Sign in |
+| `/th/signup` / `/en/signup` | Sign up |
+| `/th/dashboard` / `/en/dashboard` | Live metrics, quick actions, recent documents, activity |
+| `/th/documents` / `/en/documents` | Searchable document list |
+| `/th/documents/new` / `/en/documents/new` | Create document |
+| `/th/documents/[id]` / `/en/documents/[id]` | Document detail with AI summary and Q&A |
+| `/th/documents/[id]/edit` / `/en/documents/[id]/edit` | Edit/delete document |
+| `/th/admin` / `/en/admin` | Admin overview placeholder |
+| `/th/settings` / `/en/settings` | Environment and future settings notes |
+
+## API Routes
+
+- `POST /api/ai/summarize`
+- `POST /api/ai/ask`
+
+Both routes expect JSON payloads and require `GEMINI_API_KEY`.
+
+AI functionality is also available through server actions on the document detail page. Those actions persist summary and Q&A results to Supabase so dashboard metrics and document history reflect real usage.
+
+## Database Schema
+
+Migrations are stored in:
+
+- [supabase/migrations/202604300001_initial_schema.sql](./supabase/migrations/202604300001_initial_schema.sql)
+- [supabase/migrations/202604300002_fix_tag_rls.sql](./supabase/migrations/202604300002_fix_tag_rls.sql)
+
+Main tables:
+
+- `profiles`
+- `documents`
+- `tags`
+- `document_tags`
+- `activity_logs`
+- `ai_conversations`
+
+The schema includes RLS policies and a trigger that creates a `profiles` row for new authenticated users.
+
+## Quick Start
 
 1. Install dependencies
 
@@ -36,17 +144,7 @@ npm install
 copy .env.example .env.local
 ```
 
-3. Fill in your values in `.env.local`
-
-4. Start the dev server
-
-```bash
-npm run dev
-```
-
-5. Open [http://localhost:3000](http://localhost:3000)
-
-## Environment variables
+3. Fill in `.env.local`
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -55,112 +153,94 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 GEMINI_API_KEY=
 ```
 
-Notes:
-
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` follows the current Supabase docs for SSR setups.
-- `NEXT_PUBLIC_SITE_URL` is used for auth redirect URLs after email confirmation.
-- `GEMINI_API_KEY` is read server-side by the Gemini helper and API routes.
-
-## Project structure
+4. Apply Supabase migrations in order
 
 ```txt
-src/
-  app/
-    admin/
-    api/ai/
-    dashboard/
-    documents/
-    login/
-    settings/
-    signup/
-  components/
-  features/
-    dashboard/
-    documents/
-  lib/
-    ai/
-    supabase/
-    utils/
-    validations/
-  types/
+202604300001_initial_schema.sql
+202604300002_fix_tag_rls.sql
 ```
 
-## Current scaffold status
+5. Start the development server
 
-Implemented now:
+```bash
+npm run dev
+```
 
-- Production-oriented UI shell and route structure
-- Supabase-backed dashboard and document views
-- Supabase SSR helper setup and auth server actions
-- Gemini utility, retry/fallback handling, and persisted AI actions
-- Validation schemas
-- SQL migrations with RLS and role-aware policies
+6. Open the app
 
-Planned next:
+```txt
+http://localhost:3000
+```
 
-- Add automated tests for auth and document actions
-- Add richer admin role management
-- Add semantic search with embeddings
+The root route redirects to `/th` by default.
 
-## Main routes
-
-- `/` overview and setup state
-- `/dashboard` live metrics, quick actions, recent documents, and activity
-- `/documents` searchable document list
-- `/documents/new` create document form
-- `/documents/[id]` detail page with AI summary and Q&A
-- `/documents/[id]/edit` edit/delete document form
-- `/login` sign-in
-- `/signup` sign-up
-- `/admin` admin overview
-- `/settings` profile and API setup notes
-
-## API routes
-
-- `POST /api/ai/summarize`
-- `POST /api/ai/ask`
-
-Both routes currently expect JSON payloads and require `GEMINI_API_KEY`.
-
-## Database schema
-
-The initial schema is included in:
-
-- [supabase/migrations/202604300001_initial_schema.sql](./supabase/migrations/202604300001_initial_schema.sql)
-- [supabase/migrations/202604300002_fix_tag_rls.sql](./supabase/migrations/202604300002_fix_tag_rls.sql)
-
-It creates:
-
-- `profiles`
-- `documents`
-- `tags`
-- `document_tags`
-- `activity_logs`
-- `ai_conversations`
-
-with RLS policies and a trigger that creates `profiles` rows for new users.
-
-## Deployment
-
-Recommended:
-
-- Vercel for app hosting
-- Supabase for database, auth, and storage
-
-Before deploying:
-
-- Add all environment variables in Vercel
-- Apply Supabase migrations in order
-- Configure Supabase Auth redirect URLs
-- Confirm Gemini free-tier limits are acceptable for your demo traffic
-
-## Useful commands
+## Useful Commands
 
 ```bash
 npm run dev
 npm run lint
 npm run build
 ```
+
+## Environment Variables
+
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe Supabase publishable key |
+| `NEXT_PUBLIC_SITE_URL` | Base URL used for auth callback redirects |
+| `GEMINI_API_KEY` | Server-side Gemini API key |
+
+## Deployment Checklist
+
+Recommended hosting:
+
+- Vercel for the Next.js app
+- Supabase for database and auth
+
+Before deploying:
+
+- Add all environment variables to Vercel
+- Apply Supabase migrations in order
+- Configure Supabase Auth redirect URLs for local and production domains
+- Set `NEXT_PUBLIC_SITE_URL` to the production URL
+- Confirm Gemini free-tier limits are acceptable for demo traffic
+- Run `npm run lint` and `npm run build`
+
+## Production Readiness
+
+Already included:
+
+- Route protection through Supabase session checks
+- RLS-backed database schema
+- Server-side validation with Zod
+- Locale-aware redirects for auth and server actions
+- Persisted AI outputs to reduce repeated API usage
+- Loading, error, empty, success, and failure states
+- Responsive UI for mobile and desktop
+
+Recommended next improvements:
+
+- Add automated tests for validations and server actions
+- Add GitHub Actions CI for `lint` and `build`
+- Add real admin role management
+- Add semantic search with embeddings
+- Add document version history or favorites
+- Add committed screenshots or a short demo GIF for portfolio presentation
+
+## Portfolio Talking Points
+
+- Built a realistic internal knowledge management app from database schema to UI.
+- Used Supabase Auth, Postgres, RLS, and SSR helpers for a production-style auth/data layer.
+- Implemented server actions for CRUD and AI workflows with locale-preserving redirects.
+- Integrated Gemini for document summary and Q&A while persisting outputs for reuse.
+- Designed a bilingual responsive command-center interface suitable for desktop and mobile.
+
+## Project Roadmap
+
+The original planning document is available at:
+
+- [portfolio-fullstack-roadmap.md](./portfolio-fullstack-roadmap.md)
 
 ## References
 
