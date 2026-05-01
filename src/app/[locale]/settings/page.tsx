@@ -3,6 +3,8 @@ import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
 
+export const unstable_dynamicStaleTime = 60;
+
 type SettingsPageProps = {
   params: Promise<{ locale: string }>;
 };
@@ -10,11 +12,16 @@ type SettingsPageProps = {
 export default async function SettingsPage({ params }: SettingsPageProps) {
   const { locale: localeParam } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
 
   return (
-    <AppShell locale={locale} title={dict.settings.title} description={dict.settings.description}>
+    <AppShell
+      locale={locale}
+      title={dict.settings.title}
+      description={dict.settings.description}
+      currentUserEmail={user.email}
+    >
       <div className="grid gap-4">
         <section className="rounded-[24px] border border-border bg-panel-strong p-4 sm:p-5">
           <h2 className="text-lg font-semibold tracking-tight">{dict.settings.envChecklist}</h2>

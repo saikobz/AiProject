@@ -4,6 +4,8 @@ import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
 
+export const unstable_dynamicStaleTime = 30;
+
 type NewDocumentPageProps = {
   params: Promise<{ locale: string }>;
   searchParams?: Promise<{
@@ -14,12 +16,17 @@ type NewDocumentPageProps = {
 export default async function NewDocumentPage({ params, searchParams }: NewDocumentPageProps) {
   const { locale: localeParam } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
   const query = (await searchParams) ?? {};
 
   return (
-    <AppShell locale={locale} title={dict.documents.createTitle} description={dict.documents.createDescription}>
+    <AppShell
+      locale={locale}
+      title={dict.documents.createTitle}
+      description={dict.documents.createDescription}
+      currentUserEmail={user.email}
+    >
       <form action={createDocumentAction} className="grid gap-4">
         <input type="hidden" name="locale" value={locale} />
         {query.error ? (

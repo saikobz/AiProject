@@ -3,6 +3,7 @@ import { BarChart3, FileText, LogIn, LogOut, Settings, ShieldCheck } from "lucid
 import type { ReactNode } from "react";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getCurrentUser } from "@/lib/supabase/auth";
@@ -12,10 +13,18 @@ type AppShellProps = {
   title: string;
   description: string;
   children: ReactNode;
+  currentUserEmail?: string | null;
 };
 
-export async function AppShell({ locale, title, description, children }: AppShellProps) {
-  const user = await getCurrentUser();
+export async function AppShell({
+  locale,
+  title,
+  description,
+  children,
+  currentUserEmail,
+}: AppShellProps) {
+  const fallbackUser = currentUserEmail === undefined ? await getCurrentUser() : null;
+  const userEmail = currentUserEmail ?? fallbackUser?.email ?? null;
   const dict = getDictionary(locale);
   const navigation = [
     { href: withLocale(locale, "/dashboard"), label: dict.nav.dashboard, icon: BarChart3 },
@@ -42,7 +51,7 @@ export async function AppShell({ locale, title, description, children }: AppShel
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">
             <LanguageSwitcher locale={locale} />
-            {user ? (
+            {userEmail ? (
               <form action={`/auth/signout?locale=${locale}`} method="post">
                 <button
                   type="submit"
@@ -64,15 +73,17 @@ export async function AppShell({ locale, title, description, children }: AppShel
             >
               <item.icon className="size-4" aria-hidden="true" />
               {item.label}
+              <LinkPendingIndicator />
             </Link>
           ))}
-          {!user ? (
+          {!userEmail ? (
             <Link
               href={withLocale(locale, "/login")}
               className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-accent px-3.5 py-2 text-sm font-semibold text-background transition hover:bg-accent-strong"
             >
               <LogIn className="size-4" aria-hidden="true" />
               {dict.common.signIn}
+              <LinkPendingIndicator className="text-background" />
             </Link>
           ) : null}
         </nav>
@@ -82,7 +93,7 @@ export async function AppShell({ locale, title, description, children }: AppShel
           <div className="mb-4 rounded-2xl border border-border bg-panel-strong px-4 py-4">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{dict.common.session}</p>
             <p className="mt-2 truncate text-sm font-medium text-foreground">
-              {user?.email ?? dict.common.noSession}
+              {userEmail ?? dict.common.noSession}
             </p>
           </div>
           <nav className="space-y-2">
@@ -94,15 +105,17 @@ export async function AppShell({ locale, title, description, children }: AppShel
               >
                 <item.icon className="size-4" aria-hidden="true" />
                 {item.label}
+                <LinkPendingIndicator />
               </Link>
             ))}
-            {!user ? (
+            {!userEmail ? (
               <Link
                 href={withLocale(locale, "/login")}
                 className="flex cursor-pointer items-center gap-3 rounded-2xl bg-accent px-4 py-3 text-sm font-semibold text-background transition hover:bg-accent-strong"
               >
                 <LogIn className="size-4" aria-hidden="true" />
                 {dict.common.signIn}
+                <LinkPendingIndicator className="text-background" />
               </Link>
             ) : null}
           </nav>

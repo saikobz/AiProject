@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 
@@ -46,6 +47,7 @@ export default async function LoginPage({ params, searchParams }: LoginPageProps
           {dict.auth.needAccount}{" "}
           <Link href={withLocale(locale, "/signup")} className="cursor-pointer font-semibold text-accent transition hover:text-accent-strong">
             {dict.auth.createOne}
+            <LinkPendingIndicator className="ml-1 inline" />
           </Link>
         </p>
       </section>

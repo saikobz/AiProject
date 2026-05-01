@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { AiSummary } from "@/components/ai-summary";
 import { AppShell } from "@/components/app-shell";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { SubmitButton } from "@/components/submit-button";
 import {
   askDocumentQuestionAction,
@@ -12,6 +13,8 @@ import { getDocumentById, listAiConversations } from "@/features/documents/data"
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
+
+export const unstable_dynamicStaleTime = 30;
 
 type DocumentDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
@@ -27,7 +30,7 @@ export default async function DocumentDetailPage({
 }: DocumentDetailPageProps) {
   const { locale: localeParam, id } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
   const search = (await searchParams) ?? {};
   const document = await getDocumentById(id, locale);
@@ -39,7 +42,12 @@ export default async function DocumentDetailPage({
   const conversations = await listAiConversations(document.id);
 
   return (
-    <AppShell locale={locale} title={document.title} description={dict.documents.detailDescription}>
+    <AppShell
+      locale={locale}
+      title={document.title}
+      description={dict.documents.detailDescription}
+      currentUserEmail={user.email}
+    >
       <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
         <article className="min-w-0 rounded-[24px] border border-border bg-panel-strong p-4 sm:p-5">
           {search.success ? (
@@ -72,6 +80,7 @@ export default async function DocumentDetailPage({
           <div className="mt-6">
             <Link href={withLocale(locale, `/documents/${document.slug}/edit`)} className="inline-flex cursor-pointer rounded-full border border-border px-4 py-2 text-sm font-semibold text-accent transition hover:border-accent hover:bg-accent-soft">
               {dict.documents.editDocument}
+              <LinkPendingIndicator className="ml-2" />
             </Link>
           </div>
         </article>

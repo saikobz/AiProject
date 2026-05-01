@@ -3,6 +3,7 @@ import Link from "next/link";
 import { DashboardPreview } from "@/components/dashboard-preview";
 import { FeatureCard } from "@/components/feature-card";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { SetupNotice } from "@/components/setup-notice";
 import { getMockDashboardStats, getMockDocuments } from "@/features/documents/mock-data";
 import { getLocale, withLocale, type Locale } from "@/lib/i18n/config";
@@ -47,18 +48,21 @@ export default async function Home({ params }: HomeProps) {
                 className="cursor-pointer rounded-full bg-accent px-5 py-3 text-center text-sm font-semibold text-background transition hover:bg-accent-strong"
               >
                 {dict.home.openDashboard}
+                <LinkPendingIndicator className="ml-2 inline text-background" />
               </Link>
               <Link
                 href={withLocale(locale, "/documents")}
                 className="cursor-pointer rounded-full border border-border bg-panel-strong px-5 py-3 text-center text-sm font-semibold text-foreground transition hover:border-accent hover:bg-accent-soft"
               >
                 {dict.home.browseDocuments}
+                <LinkPendingIndicator className="ml-2 inline" />
               </Link>
               <Link
                 href={withLocale(locale, "/login")}
                 className="cursor-pointer rounded-full border border-border bg-background/35 px-5 py-3 text-center text-sm font-semibold text-foreground transition hover:border-accent hover:bg-accent-soft"
               >
                 {dict.home.reviewAuth}
+                <LinkPendingIndicator className="ml-2 inline" />
               </Link>
             </div>
             <SetupNotice labels={getSetupNoticeLabels(locale)} />

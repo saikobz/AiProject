@@ -7,6 +7,8 @@ import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
 
+export const unstable_dynamicStaleTime = 30;
+
 type EditDocumentPageProps = {
   params: Promise<{ locale: string; id: string }>;
   searchParams?: Promise<{
@@ -20,7 +22,7 @@ export default async function EditDocumentPage({
 }: EditDocumentPageProps) {
   const { locale: localeParam, id } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
   const search = (await searchParams) ?? {};
   const document = await getDocumentById(id, locale);
@@ -34,6 +36,7 @@ export default async function EditDocumentPage({
       locale={locale}
       title={dict.documents.editTitle(document.title)}
       description={dict.documents.editDescription}
+      currentUserEmail={user.email}
     >
       <form action={updateDocumentAction} className="grid gap-4">
         <input type="hidden" name="locale" value={locale} />

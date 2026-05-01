@@ -3,12 +3,15 @@ import { Bot, FilePlus2, Search } from "lucide-react";
 
 import { ActivityList } from "@/components/activity-list";
 import { AppShell } from "@/components/app-shell";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { StatGrid } from "@/components/stat-grid";
 import { getDashboardStats, getRecentActivity } from "@/features/dashboard/data";
 import { listRecentDocuments } from "@/features/documents/data";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
+
+export const unstable_dynamicStaleTime = 30;
 
 type DashboardPageProps = {
   params: Promise<{ locale: string }>;
@@ -17,7 +20,7 @@ type DashboardPageProps = {
 export default async function DashboardPage({ params }: DashboardPageProps) {
   const { locale: localeParam } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
   const [stats, documents, activity] = await Promise.all([
     getDashboardStats(locale),
@@ -26,7 +29,12 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   ]);
 
   return (
-    <AppShell locale={locale} title={dict.dashboard.title} description={dict.dashboard.description}>
+    <AppShell
+      locale={locale}
+      title={dict.dashboard.title}
+      description={dict.dashboard.description}
+      currentUserEmail={user.email}
+    >
       <div className="space-y-5 sm:space-y-6">
         <StatGrid stats={stats} />
         <div className="grid gap-3 sm:grid-cols-3">
@@ -36,6 +44,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           >
             <FilePlus2 className="size-4 text-accent" aria-hidden="true" />
             {dict.dashboard.createDocument}
+            <LinkPendingIndicator />
           </Link>
           <Link
             href={withLocale(locale, "/documents")}
@@ -43,6 +52,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
           >
             <Search className="size-4 text-accent" aria-hidden="true" />
             {dict.dashboard.searchKnowledge}
+            <LinkPendingIndicator />
           </Link>
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-panel-strong px-4 py-3 text-sm font-semibold">
             <Bot className="size-4 text-accent" aria-hidden="true" />
@@ -55,6 +65,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
               <h2 className="text-lg font-semibold tracking-tight">{dict.dashboard.recentDocuments}</h2>
               <Link href={withLocale(locale, "/documents")} className="cursor-pointer text-sm font-semibold text-accent transition hover:text-accent-strong">
                 {dict.dashboard.viewAll}
+                <LinkPendingIndicator className="ml-2 inline" />
               </Link>
             </div>
             <div className="mt-4 space-y-3">
@@ -70,6 +81,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
                       <span className="shrink-0 text-xs text-muted">
                         {document.status === "published" ? dict.common.published : dict.common.draft}
                       </span>
+                      <LinkPendingIndicator />
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm text-muted">{document.summary}</p>
                     <p className="mt-2 text-xs text-muted">{document.updatedAt}</p>

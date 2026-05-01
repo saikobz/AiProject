@@ -2,10 +2,13 @@ import Link from "next/link";
 
 import { AppShell } from "@/components/app-shell";
 import { DocumentCard } from "@/components/document-card";
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { getDocumentCategories, listDocuments } from "@/features/documents/data";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { requireUser } from "@/lib/supabase/auth";
+
+export const unstable_dynamicStaleTime = 20;
 
 type DocumentsPageProps = {
   params: Promise<{ locale: string }>;
@@ -20,7 +23,7 @@ type DocumentsPageProps = {
 export default async function DocumentsPage({ params, searchParams }: DocumentsPageProps) {
   const { locale: localeParam } = await params;
   const locale = getLocale(localeParam);
-  await requireUser(withLocale(locale, "/login"));
+  const user = await requireUser(withLocale(locale, "/login"));
   const dict = getDictionary(locale);
   const query = (await searchParams) ?? {};
   const [documents, categories] = await Promise.all([
@@ -29,7 +32,12 @@ export default async function DocumentsPage({ params, searchParams }: DocumentsP
   ]);
 
   return (
-    <AppShell locale={locale} title={dict.documents.title} description={dict.documents.description}>
+    <AppShell
+      locale={locale}
+      title={dict.documents.title}
+      description={dict.documents.description}
+      currentUserEmail={user.email}
+    >
       <div className="space-y-5 sm:space-y-6">
         {query.success ? (
           <div className="rounded-2xl border border-emerald-300/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
@@ -70,6 +78,7 @@ export default async function DocumentsPage({ params, searchParams }: DocumentsP
             className="cursor-pointer rounded-full border border-border bg-panel px-5 py-3 text-center text-sm font-semibold text-foreground transition hover:border-accent hover:bg-accent-soft"
           >
             {dict.documents.newDocument}
+            <LinkPendingIndicator className="ml-2 inline" />
           </Link>
         </div>
         {documents.length > 0 ? (

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import type { DocumentRecord } from "@/types";
@@ -39,6 +40,7 @@ export function DocumentCard({ document, locale }: DocumentCardProps) {
           className="inline-flex cursor-pointer rounded-full bg-accent px-4 py-2 text-sm font-semibold text-background transition hover:bg-accent-strong"
         >
           {dict.documents.openDocument}
+          <LinkPendingIndicator className="ml-2 text-background" />
         </Link>
       </div>
     </article>

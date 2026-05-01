@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { switchLocalePath, type Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils/cn";
 
@@ -25,6 +26,7 @@ export function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
           )}
         >
           {item === "th" ? "ไทย" : "EN"}
+          <LinkPendingIndicator className="ml-1 size-3" />
         </Link>
       ))}
     </div>
