@@ -22,7 +22,7 @@ export const dictionaries = {
     },
     home: {
       badge: "โปรเจก Portfolio แบบ Full-stack",
-      title: "คลังความรู้ทีม พร้อมค้นหาเอกสาร สรุปด้วย AI และสถาปัตยกรรม Full-stack ที่ชัดเจน",
+      title: "คลังความรู้ทีม พร้อมค้นหาเอกสาร สรุปด้วย AI",
       description:
         "เว็บนี้ใช้เก็บความรู้ภายในทีม จัดการเอกสาร ค้นหา สรุปเนื้อหา และถามคำถามจากเอกสารด้วย Gemini",
       openDashboard: "เปิดแดชบอร์ด",
@@ -193,7 +193,7 @@ export const dictionaries = {
     },
     home: {
       badge: "Full-stack portfolio project",
-      title: "Team knowledge hub with document search, AI summaries, and clean full-stack architecture",
+      title: "Team knowledge hub with document search, AI summaries",
       description:
         "Store internal knowledge, manage documents, search content, summarize information, and ask questions with Gemini.",
       openDashboard: "Open dashboard",

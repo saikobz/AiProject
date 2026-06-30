@@ -1,249 +1,150 @@
-# Team Knowledge Hub
+# Team Knowledge Hub — สรุปโปรเจกสำหรับ
 
-Full-stack portfolio project for a bilingual team knowledge base with Supabase auth, document CRUD, dashboard metrics, and Gemini-powered document summary/Q&A.
+> เอกสารนี้อธิบายโปรเจกในมุม **ธุรกิจและการใช้งาน** ไม่เน้นรายละเอียดเทคนิค  
+> สำหรับ developer ดู [README.md](./README.md)
 
-The app is designed to look and behave like an internal SaaS tool: protected workspace routes, live database-backed data, persistent AI results, responsive command-center UI, and Thai/English route-based localization.
+---
 
-## Why This Project Matters
+## โปรเจกนี้คืออะไร?
 
-This project demonstrates practical full-stack engineering, not only UI scaffolding. It combines authentication, database design, row-level security, server actions, API routes, validation, AI integration, responsive product UI, and deployment-ready configuration in one coherent business use case.
+**Team Knowledge Hub** คือเว็บแอปสำหรับ **เก็บและค้นหาความรู้ภายในทีม** — คล้ายระบบ wiki หรือคลังเอกสารของบริษัท ที่สมาชิกในทีมสามารถ:
 
-It is suitable for a portfolio because it shows how a real team might manage internal documentation, search knowledge, summarize long content, and ask AI questions from trusted document context.
+- เขียนและจัดเก็บเอกสารความรู้
+- ค้นหาและกรองเอกสารตามหมวดหมู่
+- ดูภาพรวมบน Dashboard
+- ใช้ AI ช่วย **สรุปเอกสาร** และ **ตอบคำถามจากเนื้อหาในเอกสาร**
 
-## Tech Stack
+แอปรองรับ **ภาษาไทยและอังกฤษ** และออกแบบให้ใช้งานได้ทั้ง **คอมพิวเตอร์และมือถือ**
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Supabase Auth, Postgres, RLS, and SSR helpers
-- Gemini API via `@google/genai`
-- Zod validation
-- Vercel-ready deployment model
+---
 
-## Implemented Features
+## แก้ปัญหาอะไร?
 
-- Route-based i18n with `/th` and `/en`
-- Default `/` redirect to `/th`
-- Thai and English UI for navigation, pages, forms, messages, empty states, loading states, and errors
-- Supabase SSR authentication with protected workspace routes
-- Document CRUD backed by Supabase
-- Slug-based document URLs
-- Tags, categories, search, and filters
-- Activity logs for document and AI actions
-- Dashboard metrics from live Supabase data
-- Gemini AI summary persisted to `documents.summary`
-- Gemini document Q&A persisted to `ai_conversations`
-- Command-center responsive UI with mobile top-chip navigation and desktop sidebar
-- Server-side validation for documents and AI prompts
-- Loading/error pages for App Router routes
+ในทีมงาน ข้อมูลสำคัญมักกระจายอยู่หลายที่ — ไฟล์, แชท, โน้ตส่วนตัว — ทำให้หาเอกสารยากและคนใหม่เรียนรู้ช้า
 
-## Screenshots
+โปรเจกนี้จำลอง **ระบบคลังความรู้กลาง** ที่ช่วยให้ทีม:
 
-Screenshots are not committed yet.
 
-Suggested portfolio screenshots:
+| ปัญหา                    | วิธีที่แอปช่วย                            |
+| ------------------------ | ----------------------------------------- |
+| เอกสารกระจัดกระจาย       | รวมเอกสารไว้ที่เดียว พร้อมหมวดหมู่และแท็ก |
+| หาเอกสารไม่เจอ           | ค้นหาจากชื่อหรือเนื้อหาได้                |
+| อ่านเอกสารยาวไม่ทัน      | AI สรุปเป็นประเด็นสำคัญให้                |
+| มีคำถามจากเอกสาร         | ถาม AI แล้วได้คำตอบอ้างอิงจากเอกสารนั้น   |
+| ไม่รู้ว่าใครทำอะไรล่าสุด | Dashboard แสดงสถิติและกิจกรรมล่าสุด       |
 
-- Landing page in Thai and English
-- Dashboard desktop view
-- Documents list with search/filter
-- Document detail with AI summary and Q&A
-- Mobile login or mobile landing view
 
-## Architecture Overview
+---
 
-```txt
-src/
-  app/
-    [locale]/
-      admin/
-      dashboard/
-      documents/
-      login/
-      settings/
-      signup/
-    api/ai/
-    auth/
-  components/
-  features/
-    dashboard/
-    documents/
-  lib/
-    ai/
-    i18n/
-    supabase/
-    utils/
-    validations/
-  types/
-supabase/
-  migrations/
+
+
+## ใครใช้แอปนี้ได้บ้าง?
+
+- **สมาชิกทีม** — สมัครสมาชิก, เข้าสู่ระบบ, สร้าง/แก้ไข/ค้นหาเอกสาร, ใช้ AI
+- **ผู้ดูแลระบบ (Admin)** — มีหน้า admin สำหรับขยายในอนาคต (โครงสร้างพร้อมแล้ว)
+
+เฉพาะผู้ที่ **login แล้ว** เท่านั้นที่เข้าหน้างานหลักได้ (Dashboard, เอกสาร, ตั้งค่า)
+
+---
+
+
+
+## ฟีเจอร์หลัก (ภาษาคนทั่วไป)
+
+
+
+### 1. หน้าแรก (Landing)
+
+แนะนำแอป สลับภาษาไทย/อังกฤษได้
+
+### 2. สมัครสมาชิก / เข้าสู่ระบบ
+
+ผู้ใช้สร้างบัญชีและ login อย่างปลอดภัย — ข้อมูลผู้ใช้เก็บในฐานข้อมูลจริง
+
+### 3. Dashboard (หน้าภาพรวม)
+
+- จำนวนเอกสารทั้งหมด / ที่เผยแพร่แล้ว / ที่มี AI สรุปแล้ว
+- เอกสารที่อัปเดตล่าสุด
+- ประวัติกิจกรรม (เช่น สร้างเอกสาร, ใช้ AI)
+
+
+
+### 4. จัดการเอกสาร
+
+- สร้าง แก้ไข ลบ เอกสาร
+- ใส่หมวดหมู่และแท็ก
+- ค้นหาและกรองตามหมวดหมู่
+- สถานะร่าง (draft) หรือเผยแพร่ (published)
+
+
+
+### 5. AI ช่วยอ่านเอกสาร
+
+- **สรุปเอกสาร** — AI อ่านแล้วสรุปเป็นข้อ ๆ ภาษาไทย
+- **ถาม-ตอบ** — ผู้ใช้ถามคำถาม แล้ว AI ตอบจากเนื้อหาในเอกสารนั้น
+- ผลลัพธ์ถูก **บันทึกไว้** ไม่ต้องเรียก AI ซ้ำทุกครั้ง
+
+
+
+### 6. รองรับมือถือ
+
+เมนูและ layout ปรับให้ใช้บนมือถือได้สะดวก
+
+---
+
+
+
+## ตัวอย่างการใช้งานจริง (User Flow)
+
+```
+1. พนักงานใหม่สมัครสมาชิก → เข้าสู่ระบบ
+2. เปิด Dashboard → เห็นภาพรวมเอกสารในทีม
+3. ค้นหา "วิธี deploy" → เจอเอกสารที่เกี่ยวข้อง
+4. เปิดเอกสาร → กด "สรุปด้วย AI" → ได้ประเด็นสำคัญในไม่กี่วินาที
+5. ถาม AI ว่า "ขั้นตอนที่ 3 คืออะไร" → ได้คำตอบจากเอกสาร
+6. สร้างเอกสารใหม่แชร์ความรู้กลับเข้าคลัง
 ```
 
-Key architecture decisions:
+---
 
-- UI pages live under `src/app/[locale]` so `/th/...` and `/en/...` share the same implementation.
-- API routes and auth callbacks stay outside `[locale]` because they do not render localized UI.
-- Server Components read `params.locale` and load dictionary text from `src/lib/i18n`.
-- Server Actions receive a hidden `locale` field so redirects return to the same language.
-- User-generated document data is shown as stored and is not automatically translated.
 
-## Main Routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Redirects to `/th` |
-| `/th` / `/en` | Public landing page |
-| `/th/login` / `/en/login` | Sign in |
-| `/th/signup` / `/en/signup` | Sign up |
-| `/th/dashboard` / `/en/dashboard` | Live metrics, quick actions, recent documents, activity |
-| `/th/documents` / `/en/documents` | Searchable document list |
-| `/th/documents/new` / `/en/documents/new` | Create document |
-| `/th/documents/[id]` / `/en/documents/[id]` | Document detail with AI summary and Q&A |
-| `/th/documents/[id]/edit` / `/en/documents/[id]/edit` | Edit/delete document |
-| `/th/admin` / `/en/admin` | Admin overview placeholder |
-| `/th/settings` / `/en/settings` | Environment and future settings notes |
+## ใช้เทคโนโลยีอะไรบ้าง? (อธิบายแบบง่าย)
 
-## API Routes
 
-- `POST /api/ai/summarize`
-- `POST /api/ai/ask`
+| ส่วน              | เทคโนโลยี         | เปรียบเทียบง่าย ๆ                                    |
+| ----------------- | ----------------- | ---------------------------------------------------- |
+| หน้าเว็บ / แอป    | Next.js, React    | โครงสร้างเว็บแอปสมัยใหม่ ใช้กันแพร่หลายในบริษัท tech |
+| ภาษาที่เขียนโค้ด  | TypeScript        | ลด bug ด้วยการตรวจ type ก่อนรัน                      |
+| หน้าตา UI         | Tailwind CSS      | ออกแบบ interface สวยและ responsive                   |
+| ฐานข้อมูล + Login | Supabase          | เก็บข้อมูลผู้ใช้และเอกสาร พร้อมระบบ login            |
+| AI                | Google Gemini     | สรุปเนื้อหาและตอบคำถาม                               |
+| Deploy ได้        | Vercel + Supabase | พร้อมขึ้น server จริง                                |
 
-Both routes expect JSON payloads and require `GEMINI_API_KEY`.
 
-AI functionality is also available through server actions on the document detail page. Those actions persist summary and Q&A results to Supabase so dashboard metrics and document history reflect real usage.
+---
 
-## Database Schema
 
-Migrations are stored in:
 
-- [supabase/migrations/202604300001_initial_schema.sql](./supabase/migrations/202604300001_initial_schema.sql)
-- [supabase/migrations/202604300002_fix_tag_rls.sql](./supabase/migrations/202604300002_fix_tag_rls.sql)
+## โปรเจกนี้แสดงทักษะอะไรของผู้พัฒนา?
 
-Main tables:
+- **Full-stack** — ทำได้ทั้งหน้าเว็บ, ระบบ login, ฐานข้อมูล, และเชื่อม AI
+- **ออกแบบระบบจริง** — มี auth, สิทธิ์การเข้าถึงข้อมูล, validation ข้อมูล
+- **Product thinking** — ออกแบบ flow ใช้งานครบ (login → dashboard → CRUD → AI)
+- **รองรับผู้ใช้หลายภาษา** — UI ไทย/อังกฤษ
+- **Responsive design** — ใช้ได้ทั้ง desktop และ mobile
+- **AI integration** — นำ AI มาใช้กับข้อมูลจริง ไม่ใช่แค่ demo แชท
 
-- `profiles`
-- `documents`
-- `tags`
-- `document_tags`
-- `activity_logs`
-- `ai_conversations`
+---
 
-The schema includes RLS policies and a trigger that creates a `profiles` row for new authenticated users.
 
-## Quick Start
 
-1. Install dependencies
+## สถานะโปรเจก
 
-```bash
-npm install
-```
+- เป็น **โปรเจก portfolio / demo** ที่ทำงานได้จริง end-to-end
+- ข้อมูลเก็บในฐานข้อมูลจริง ไม่ใช่ mockup อย่างเดียว
+- พร้อม deploy ขึ้น production (Vercel + Supabase)
+- ยังไม่มี screenshot ใน repo — สามารถ demo ผ่านการรัน local หรือ URL deploy ได้
 
-2. Copy environment variables
+---
 
-```bash
-copy .env.example .env.local
-```
-
-3. Fill in `.env.local`
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
-GEMINI_API_KEY=
-```
-
-4. Apply Supabase migrations in order
-
-```txt
-202604300001_initial_schema.sql
-202604300002_fix_tag_rls.sql
-```
-
-5. Start the development server
-
-```bash
-npm run dev
-```
-
-6. Open the app
-
-```txt
-http://localhost:3000
-```
-
-The root route redirects to `/th` by default.
-
-## Useful Commands
-
-```bash
-npm run dev
-npm run lint
-npm run build
-```
-
-## Environment Variables
-
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser-safe Supabase publishable key |
-| `NEXT_PUBLIC_SITE_URL` | Base URL used for auth callback redirects |
-| `GEMINI_API_KEY` | Server-side Gemini API key |
-
-## Deployment Checklist
-
-Recommended hosting:
-
-- Vercel for the Next.js app
-- Supabase for database and auth
-
-Before deploying:
-
-- Add all environment variables to Vercel
-- Apply Supabase migrations in order
-- Configure Supabase Auth redirect URLs for local and production domains
-- Set `NEXT_PUBLIC_SITE_URL` to the production URL
-- Confirm Gemini free-tier limits are acceptable for demo traffic
-- Run `npm run lint` and `npm run build`
-
-## Production Readiness
-
-Already included:
-
-- Route protection through Supabase session checks
-- RLS-backed database schema
-- Server-side validation with Zod
-- Locale-aware redirects for auth and server actions
-- Persisted AI outputs to reduce repeated API usage
-- Loading, error, empty, success, and failure states
-- Responsive UI for mobile and desktop
-
-Recommended next improvements:
-
-- Add automated tests for validations and server actions
-- Add GitHub Actions CI for `lint` and `build`
-- Add real admin role management
-- Add semantic search with embeddings
-- Add document version history or favorites
-- Add committed screenshots or a short demo GIF for portfolio presentation
-
-## Portfolio Talking Points
-
-- Built a realistic internal knowledge management app from database schema to UI.
-- Used Supabase Auth, Postgres, RLS, and SSR helpers for a production-style auth/data layer.
-- Implemented server actions for CRUD and AI workflows with locale-preserving redirects.
-- Integrated Gemini for document summary and Q&A while persisting outputs for reuse.
-- Designed a bilingual responsive command-center interface suitable for desktop and mobile.
-
-## Project Roadmap
-
-The original planning document is available at:
-
-- [portfolio-fullstack-roadmap.md](./portfolio-fullstack-roadmap.md)
-
-## References
-
-- [Next.js App Router docs](https://nextjs.org/docs/app)
-- [Supabase Next.js SSR guide](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs)
-- [Gemini API quickstart](https://ai.google.dev/gemini-api/docs/quickstart)
