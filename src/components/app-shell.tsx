@@ -6,7 +6,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { LinkPendingIndicator } from "@/components/link-pending-indicator";
 import { withLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { getCurrentUser } from "@/lib/supabase/auth";
+import { getCurrentProfile, getCurrentUser } from "@/lib/supabase/auth";
 
 type AppShellProps = {
   locale: Locale;
@@ -25,11 +25,15 @@ export async function AppShell({
 }: AppShellProps) {
   const fallbackUser = currentUserEmail === undefined ? await getCurrentUser() : null;
   const userEmail = currentUserEmail ?? fallbackUser?.email ?? null;
+  const profile = userEmail ? await getCurrentProfile() : null;
+  const isAdmin = profile?.role === "admin";
   const dict = getDictionary(locale);
   const navigation = [
     { href: withLocale(locale, "/dashboard"), label: dict.nav.dashboard, icon: BarChart3 },
     { href: withLocale(locale, "/documents"), label: dict.nav.documents, icon: FileText },
-    { href: withLocale(locale, "/admin"), label: dict.nav.admin, icon: ShieldCheck },
+    ...(isAdmin
+      ? [{ href: withLocale(locale, "/admin"), label: dict.nav.admin, icon: ShieldCheck }]
+      : []),
     { href: withLocale(locale, "/settings"), label: dict.nav.settings, icon: Settings },
   ];
 

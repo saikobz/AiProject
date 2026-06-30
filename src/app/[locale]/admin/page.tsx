@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/app-shell";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { requireUser } from "@/lib/supabase/auth";
+import { requireAdmin } from "@/lib/supabase/auth";
 
 export const unstable_dynamicStaleTime = 60;
 
@@ -12,7 +12,10 @@ type AdminPageProps = {
 export default async function AdminPage({ params }: AdminPageProps) {
   const { locale: localeParam } = await params;
   const locale = getLocale(localeParam);
-  const user = await requireUser(withLocale(locale, "/login"));
+  const { user } = await requireAdmin(
+    withLocale(locale, "/login"),
+    withLocale(locale, "/dashboard"),
+  );
   const dict = getDictionary(locale);
 
   return (
