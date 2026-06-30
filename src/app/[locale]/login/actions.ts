@@ -43,7 +43,15 @@ export async function login(formData: FormData) {
   }
 
   await headers();
-  const supabase = await createClient();
+
+  let supabase;
+
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect(getErrorRedirect(locale, dict.system.supabaseMissing));
+  }
+
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
@@ -71,7 +79,15 @@ export async function signup(formData: FormData) {
   }
 
   await headers();
-  const supabase = await createClient();
+
+  let supabase;
+
+  try {
+    supabase = await createClient();
+  } catch {
+    redirect(`${withLocale(locale, "/signup")}?error=${encodeURIComponent(dict.system.supabaseMissing)}`);
+  }
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
