@@ -217,7 +217,7 @@ export const dictionaries = {
         },
       ],
       supportCards: [
-        { title: "Core routes", description: "Dashboard, documents, auth, admin, settings, and AI API routes." },
+        { title: "Core routes", description: "Dashboard, documents, auth, admin, settings, and authenticated AI actions." },
         { title: "Integrations", description: "Supabase SSR and Gemini for server-side processing." },
         { title: "Validation", description: "Validate document input and AI prompts with Zod." },
         { title: "Project docs", description: "README and roadmap for explaining the work in a portfolio." },

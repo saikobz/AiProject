@@ -1,0 +1,22 @@
+---
+description: Auto-apply project skills from .agents/skills when tasks match
+alwaysApply: true
+---
+
+# Project skills (.agents/skills)
+
+This repo ships Agent Skills under `.agents/skills/`. Prefer these project skills over user-global skills when both apply.
+
+When a task matches a skill's description, **read and follow that skill's `SKILL.md` before implementing** — do not wait for the user to type `/skill-name`.
+
+Check `.agents/skills/*/SKILL.md` frontmatter `description` for relevance. Installed skills (see `skills-lock.json`):
+
+| Skill | Auto-use when |
+| --- | --- |
+| `vercel-react-best-practices` | Writing, reviewing, or refactoring React/Next.js code; performance, data fetching, bundle size, Server Components |
+| `frontend-design` | Building or reshaping UI; typography, layout, visual direction, distinctive aesthetics |
+| `ponytail` | Any coding task (write, fix, refactor, review, choose libs); prefer minimal/YAGNI; user says lazy, simplest, yagni, or complains about over-engineering |
+
+After clone, restore skills: `npx skills experimental_install` (reads `skills-lock.json`).
+
+Add skills: `npx skills add <repo> --skill <name>`

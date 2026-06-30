@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# cursor / agent skills (local tooling)
+.agents/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
