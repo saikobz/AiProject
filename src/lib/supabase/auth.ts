@@ -76,3 +76,7 @@ export async function requireAdmin(
 
   return { user, profile };
 }
+
+export function canManageDocument(authorId: string, userId: string, isAdmin: boolean) {
+  return isAdmin || authorId === userId;
+}

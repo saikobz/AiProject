@@ -12,7 +12,7 @@ import {
 import { getDocumentById, listAiConversations } from "@/features/documents/data";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { requireUser } from "@/lib/supabase/auth";
+import { canManageDocument, getCurrentProfile, requireUser } from "@/lib/supabase/auth";
 
 export const unstable_dynamicStaleTime = 30;
 
@@ -31,6 +31,7 @@ export default async function DocumentDetailPage({
   const { locale: localeParam, id } = await params;
   const locale = getLocale(localeParam);
   const user = await requireUser(withLocale(locale, "/login"));
+  const profile = await getCurrentProfile();
   const dict = getDictionary(locale);
   const search = (await searchParams) ?? {};
   const document = await getDocumentById(id, locale);
@@ -39,6 +40,11 @@ export default async function DocumentDetailPage({
     notFound();
   }
 
+  const canManage = canManageDocument(
+    document.authorId,
+    user.id,
+    profile?.role === "admin",
+  );
   const conversations = await listAiConversations(document.id);
 
   return (
@@ -78,10 +84,12 @@ export default async function DocumentDetailPage({
             {document.content}
           </p>
           <div className="mt-6">
-            <Link href={withLocale(locale, `/documents/${document.slug}/edit`)} className="inline-flex cursor-pointer rounded-full border border-border px-4 py-2 text-sm font-semibold text-accent transition hover:border-accent hover:bg-accent-soft">
-              {dict.documents.editDocument}
-              <LinkPendingIndicator className="ml-2" />
-            </Link>
+            {canManage ? (
+              <Link href={withLocale(locale, `/documents/${document.slug}/edit`)} className="inline-flex cursor-pointer rounded-full border border-border px-4 py-2 text-sm font-semibold text-accent transition hover:border-accent hover:bg-accent-soft">
+                {dict.documents.editDocument}
+                <LinkPendingIndicator className="ml-2" />
+              </Link>
+            ) : null}
           </div>
         </article>
         <aside className="space-y-4">
@@ -92,7 +100,6 @@ export default async function DocumentDetailPage({
                 <input type="hidden" name="locale" value={locale} />
                 <input type="hidden" name="document_id" value={document.id} />
                 <input type="hidden" name="document_slug" value={document.slug} />
-                <input type="hidden" name="content" value={document.content} />
                 <SubmitButton
                   idleLabel={dict.documents.generate}
                   pendingLabel={dict.documents.summarizing}
@@ -108,7 +115,6 @@ export default async function DocumentDetailPage({
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="document_id" value={document.id} />
               <input type="hidden" name="document_slug" value={document.slug} />
-              <input type="hidden" name="content" value={document.content} />
               <textarea
                 name="question"
                 className="mt-4 min-h-32 w-full rounded-2xl border border-border bg-background/35 px-4 py-3 text-sm outline-none transition placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent-soft"

@@ -84,6 +84,7 @@ function mapDocument(row: DocumentRow, locale: Locale = "th"): DocumentRecord {
     content: row.content,
     updatedAt: new Date(row.updated_at).toLocaleDateString("en-CA"),
     author: profile?.full_name || profile?.email || "Unknown author",
+    authorId: row.author_id,
     status: row.status,
     tags:
       row.document_tags
@@ -112,6 +113,10 @@ export const getDocumentCategories = cache(async () => {
   return [...new Set((data ?? []).map((item) => item.category))];
 });
 
+function sanitizeSearchTerm(value: string) {
+  return value.trim().slice(0, 100).replace(/[,()\\]/g, "");
+}
+
 export async function listDocuments(filters: DocumentFilters = {}, locale: Locale = "th") {
   const supabase = await createClient();
   let query = supabase
@@ -120,7 +125,11 @@ export async function listDocuments(filters: DocumentFilters = {}, locale: Local
     .order("updated_at", { ascending: false });
 
   if (filters.query) {
-    query = query.or(`title.ilike.%${filters.query}%,content.ilike.%${filters.query}%`);
+    const term = sanitizeSearchTerm(filters.query);
+
+    if (term) {
+      query = query.or(`title.ilike.%${term}%,content.ilike.%${term}%`);
+    }
   }
 
   if (filters.category && filters.category !== "all") {

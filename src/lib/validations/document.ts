@@ -13,6 +13,5 @@ export const aiSummarySchema = z.object({
 });
 
 export const aiQuestionSchema = z.object({
-  content: z.string().min(20).max(10000),
   question: z.string().min(3).max(400),
 });

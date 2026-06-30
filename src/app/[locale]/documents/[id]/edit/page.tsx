@@ -1,11 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { deleteDocumentAction, updateDocumentAction } from "@/features/documents/actions";
 import { getDocumentById } from "@/features/documents/data";
 import { getLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
-import { requireUser } from "@/lib/supabase/auth";
+import { canManageDocument, getCurrentProfile, requireUser } from "@/lib/supabase/auth";
 
 export const unstable_dynamicStaleTime = 30;
 
@@ -23,12 +23,17 @@ export default async function EditDocumentPage({
   const { locale: localeParam, id } = await params;
   const locale = getLocale(localeParam);
   const user = await requireUser(withLocale(locale, "/login"));
+  const profile = await getCurrentProfile();
   const dict = getDictionary(locale);
   const search = (await searchParams) ?? {};
   const document = await getDocumentById(id, locale);
 
   if (!document) {
     notFound();
+  }
+
+  if (!canManageDocument(document.authorId, user.id, profile?.role === "admin")) {
+    redirect(withLocale(locale, `/documents/${document.slug}`));
   }
 
   return (

@@ -15,6 +15,7 @@ const documents: DocumentRecord[] = [
       "เอกสารนี้สรุปการตั้งค่าบัญชี การแนะนำทีม การขอสิทธิ์ใช้งาน แนวทางการสื่อสาร และจุดตรวจสอบในสัปดาห์แรก",
     updatedAt: "2026-04-28",
     author: "Padon",
+    authorId: "00000000-0000-4000-8000-000000000001",
     status: "published",
   },
   {
@@ -29,6 +30,7 @@ const documents: DocumentRecord[] = [
       "Incident ถูกแบ่งเป็นหลายระดับ แต่ละระดับกำหนดวิธีแจ้งเตือน ความถี่ในการอัปเดต และความรับผิดชอบของเจ้าของงาน",
     updatedAt: "2026-04-27",
     author: "Support Lead",
+    authorId: "00000000-0000-4000-8000-000000000002",
     status: "published",
   },
   {
@@ -43,6 +45,7 @@ const documents: DocumentRecord[] = [
       "ก่อน release ให้ตรวจ test coverage, migration safety, alert dashboard และกำหนดผู้รับผิดชอบ rollback",
     updatedAt: "2026-04-25",
     author: "Platform Team",
+    authorId: "00000000-0000-4000-8000-000000000003",
     status: "draft",
   },
   {
@@ -57,6 +60,7 @@ const documents: DocumentRecord[] = [
       "ใช้เทมเพลตนี้เพื่อให้ discovery call มีมาตรฐานและเก็บข้อมูลสำหรับประเมินโอกาสทางการขาย",
     updatedAt: "2026-04-22",
     author: "Revenue Ops",
+    authorId: "00000000-0000-4000-8000-000000000004",
     status: "published",
   },
 ];

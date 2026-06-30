@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 
 import { normalizeLocale, withLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
+import { safeNextPath } from "@/lib/navigation/safe-path";
 import { createClient } from "@/lib/supabase/server";
 import { getSupabaseEnv } from "@/lib/supabase/shared";
 
@@ -16,14 +17,6 @@ function getRedirectUrl(path: string) {
 
 function getErrorRedirect(locale: ReturnType<typeof normalizeLocale>, message: string) {
   return `${withLocale(locale, "/login")}?error=${encodeURIComponent(message)}`;
-}
-
-function safeNextPath(next: string, locale: ReturnType<typeof normalizeLocale>) {
-  if (!next.startsWith("/") || next.startsWith("//")) {
-    return withLocale(locale, "/dashboard");
-  }
-
-  return next;
 }
 
 export async function login(formData: FormData) {

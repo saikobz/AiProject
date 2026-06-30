@@ -10,6 +10,7 @@ export type DocumentRecord = {
   content: string;
   updatedAt: string;
   author: string;
+  authorId: string;
   status: "draft" | "published";
 };
 

@@ -27,20 +27,42 @@ async function requireAiUser(locale: Locale) {
   return { supabase, user };
 }
 
+async function loadDocumentForAi(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  documentId: string,
+  documentSlug: string,
+) {
+  const { data, error } = await supabase
+    .from("documents")
+    .select("id, slug, content")
+    .eq("id", documentId)
+    .maybeSingle();
+
+  if (error || !data || data.slug !== documentSlug) {
+    return null;
+  }
+
+  return data;
+}
+
 export async function generateSummaryAction(formData: FormData) {
   const locale = normalizeLocale(formData.get("locale"));
   const dict = getDictionary(locale);
   const documentId = String(formData.get("document_id") ?? "");
   const documentSlug = String(formData.get("document_slug") ?? "");
-  const content = String(formData.get("content") ?? "");
 
-  const parsed = aiSummarySchema.safeParse({ content });
-
-  if (!documentId || !documentSlug || !parsed.success) {
+  if (!documentId || !documentSlug) {
     redirect(getErrorPath(locale, documentSlug || documentId, dict.system.summaryNeedsContent));
   }
 
   const { supabase, user } = await requireAiUser(locale);
+  const document = await loadDocumentForAi(supabase, documentId, documentSlug);
+  const parsed = aiSummarySchema.safeParse({ content: document?.content ?? "" });
+
+  if (!document || !parsed.success) {
+    redirect(getErrorPath(locale, documentSlug, dict.system.summaryNeedsContent));
+  }
+
   let redirectPath = `${withLocale(locale, `/documents/${documentSlug}`)}?success=${encodeURIComponent(dict.system.summaryGenerated)}`;
 
   try {
@@ -80,24 +102,30 @@ export async function askDocumentQuestionAction(formData: FormData) {
   const dict = getDictionary(locale);
   const documentId = String(formData.get("document_id") ?? "");
   const documentSlug = String(formData.get("document_slug") ?? "");
-  const content = String(formData.get("content") ?? "");
   const question = String(formData.get("question") ?? "");
 
-  const parsed = aiQuestionSchema.safeParse({ content, question });
+  const questionParsed = aiQuestionSchema.safeParse({ question });
 
-  if (!documentId || !documentSlug || !parsed.success) {
+  if (!documentId || !documentSlug || !questionParsed.success) {
     redirect(getErrorPath(locale, documentSlug || documentId, dict.system.questionNeedsContent));
   }
 
   const { supabase, user } = await requireAiUser(locale);
+  const document = await loadDocumentForAi(supabase, documentId, documentSlug);
+  const contentParsed = aiSummarySchema.safeParse({ content: document?.content ?? "" });
+
+  if (!document || !contentParsed.success) {
+    redirect(getErrorPath(locale, documentSlug, dict.system.questionNeedsContent));
+  }
+
   let redirectPath = `${withLocale(locale, `/documents/${documentSlug}`)}?success=${encodeURIComponent(dict.system.answerSaved)}`;
 
   try {
-    const answer = await askDocumentQuestion(parsed.data.content, parsed.data.question);
+    const answer = await askDocumentQuestion(contentParsed.data.content, questionParsed.data.question);
     const { error: conversationError } = await supabase.from("ai_conversations").insert({
       document_id: documentId,
       user_id: user.id,
-      question: parsed.data.question,
+      question: questionParsed.data.question,
       answer,
     });
 
