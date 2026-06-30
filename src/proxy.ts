@@ -17,6 +17,10 @@ function shouldLocalize(pathname: string) {
   return localizedRouteRoots.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
+function hasSupabaseSessionCookie(request: NextRequest) {
+  return request.cookies.getAll().some(({ name }) => name.includes("-auth-token"));
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
@@ -38,7 +42,18 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = authRoutes.some((path) => routePath === path);
   const env = getSupabaseEnv();
 
-  if (!env) {
+  if (!env || (!isProtected && !isAuthPage)) {
+    return NextResponse.next({ request });
+  }
+
+  if (!hasSupabaseSessionCookie(request)) {
+    if (isProtected) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = withLocale(locale, "/login");
+      loginUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
     return NextResponse.next({ request });
   }
 
@@ -58,9 +73,23 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const {
+      data: { user: sessionUser },
+    } = await supabase.auth.getUser();
+    user = sessionUser;
+  } catch {
+    if (isProtected) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = withLocale(locale, "/login");
+      loginUrl.searchParams.set("next", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return response;
+  }
 
   if (!user && isProtected) {
     const loginUrl = request.nextUrl.clone();

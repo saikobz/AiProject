@@ -12,11 +12,16 @@ export const getCurrentUser = cache(async () => {
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  return user;
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    return user;
+  } catch {
+    return null;
+  }
 });
 
 export async function requireUser(loginPath = "/th/login") {
